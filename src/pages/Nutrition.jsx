@@ -4,7 +4,6 @@ import { AppContext } from "../App";
 export default function Nutrition() {
   const { lang } = useContext(AppContext);
 
-  // Datos nutricionales de ejemplo
   const tablaAlimentos = [
     {
       alimento: lang === "es" ? "Avena integral" : "Steel-cut oats",
