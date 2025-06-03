@@ -16,38 +16,25 @@ import DarkModeToggle from "./components/DarkModeToggle";
 import Nutrition from "./pages/Nutrition";
 
 // --------------------------------------------------
-// 1) CONFIGURACIÓN DE FIREBASE: debes copiar tus datos
+// 1) CONFIGURACIÓN DE FIREBASE (valores reales)
 // --------------------------------------------------
-// Ve a la Consola de Firebase → Configuración del proyecto → Tus apps → SDK para Web
-// Ahí verás un bloque parecido a este (ejemplo ficticio):
-//
-//   const firebaseConfig = {
-//     apiKey: "AIzaSyD12345_XXXXXXXXXXXXXXXXXXXXXXX",
-//     authDomain: "mi-proyecto.firebaseapp.com",
-//     projectId: "mi-proyecto",
-//     storageBucket: "mi-proyecto.appspot.com",
-//     messagingSenderId: "1234567890",
-//     appId: "1:1234567890:web:abcdef123456",
-//     measurementId: "G-ABCDEFGH"
-//   };
-//
-// Debes copiar cada uno de esos valores en lugar de "TU_...".
-
+// Estos datos debes haberlos obtenido de tu Consola de Firebase:
+// Proyecto → Configuración del proyecto → SDK para Web
 const firebaseConfig = {
-  apiKey: "TU_API_KEY",
-  authDomain: "TU_AUTH_DOMAIN",
-  projectId: "TU_PROJECT_ID",
-  storageBucket: "TU_STORAGE_BUCKET",
-  messagingSenderId: "TU_MESSAGING_SENDER_ID",
-  appId: "TU_APP_ID",
-  measurementId: "TU_MEASUREMENT_ID"
+  apiKey: "AIzaSyC7jYi0ST5rfYvfZcb8QgeMmvvVcrKDFiU",
+  authDomain: "mi-rutina-saludable.firebaseapp.com",
+  projectId: "mi-rutina-saludable",
+  storageBucket: "mi-rutina-saludable.firebasestorage.app",
+  messagingSenderId: "17810301001",
+  appId: "1:17810301001:web:a0d9b260b138c81980df98",
+  measurementId: "G-W2ZMDYK46E"
 };
 
 initializeApp(firebaseConfig);
 const auth = getAuth();
 
 // ----------------------------------------------------
-// 2) Creamos un contexto para tema (darkMode) e idioma
+// 2) Contexto para compartir tema (darkMode) e idioma
 // ----------------------------------------------------
 export const AppContext = createContext();
 
@@ -79,13 +66,12 @@ function App() {
   }, [darkMode]);
 
   // --------------------------------------------------
-  // 6) Forzar que el splash desaparezca tras X segundos
+  // 6) Forzar que el splash desaparezca tras 3 segundos
   // --------------------------------------------------
   useEffect(() => {
-    // 3000 ms = 3 segundos de espera máxima
     const timeoutId = setTimeout(() => {
       setLoading(false);
-    }, 3000);
+    }, 3000); // 3000 ms = 3 segundos como máximo
     return () => clearTimeout(timeoutId);
   }, []);
 
@@ -110,7 +96,7 @@ function App() {
     return (
       <div className="flex items-center justify-center h-screen bg-black">
         <video
-          src="/assets/intro.mov"       // <–– Debe existir en public/assets/intro.mov
+          src="/assets/intro.mov"       // Debe existir en public/assets/intro.mov
           autoPlay                      // Reproducción automática
           loop                          // Loop indefinido
           muted={true}                  // Silenciar para permitir autoplay
