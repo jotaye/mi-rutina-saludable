@@ -1,0 +1,107 @@
+import React, { useState, useEffect, createContext } from "react";
+import { BrowserRouter as Router, Routes, Route, Navigate, Link } from "react-router-dom";
+import { initializeApp } from "firebase/app";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import Home from "./pages/Home";
+import WeekView from "./pages/WeekView";
+import Timer from "./components/Timer";
+import Progress from "./pages/Progress";
+import DarkModeToggle from "./components/DarkModeToggle";
+import Nutrition from "./pages/Nutrition";  // ← Importa la página Nutrition
+
+// Configuración de Firebase
+const firebaseConfig = {
+  apiKey: "AIzaSyC7jYi0ST5rfYvfZcb8QgeMmvvVcrKDFiU",
+  authDomain: "mi-rutina-saludable.firebaseapp.com",
+  projectId: "mi-rutina-saludable",
+  storageBucket: "mi-rutina-saludable.appspot.com",
+  messagingSenderId: "17810301001",
+  appId: "1:17810301001:web:a0d9b260b138c81980df98",
+  measurementId: "G-W2ZMDYK46E"
+};
+
+initializeApp(firebaseConfig);
+const auth = getAuth();
+
+// Contexto para compartir tema e idioma
+export const AppContext = createContext();
+
+function App() {
+  const [user, setUser] = useState(null);
+  const [darkMode, setDarkMode] = useState(false);
+  const [lang, setLang] = useState("es"); // "es" o "en"
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (usr) => {
+      setUser(usr);
+    });
+    return () => unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    if (darkMode) {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
+  }, [darkMode]);
+
+  const toggleDarkMode = () => setDarkMode(!darkMode);
+  const toggleLang = () => setLang((prev) => (prev === "es" ? "en" : "es"));
+
+  return (
+    <AppContext.Provider value={{ darkMode, toggleDarkMode, lang, toggleLang }}>
+      <Router>
+        {user && (
+          <nav className="p-4 bg-white dark:bg-gray-800 shadow flex justify-between">
+            <div className="flex space-x-4">
+              <Link to="/" className="text-gray-700 dark:text-gray-200">
+                {lang === "es" ? "Hoy" : "Today"}
+              </Link>
+              <Link to="/semana" className="text-gray-700 dark:text-gray-200">
+                {lang === "es" ? "Semana" : "Week"}
+              </Link>
+              <Link to="/progreso" className="text-gray-700 dark:text-gray-200">
+                {lang === "es" ? "Progreso" : "Progress"}
+              </Link>
+              <Link to="/nutricion" className="text-gray-700 dark:text-gray-200">
+                {lang === "es" ? "Nutrición" : "Nutrition"}  {/* ← Nuevo enlace */}
+              </Link>
+            </div>
+            <div className="flex space-x-4">
+              <button onClick={toggleLang} className="text-gray-700 dark:text-gray-200">
+                {lang === "es" ? "EN" : "ES"}
+              </button>
+              <DarkModeToggle />
+            </div>
+          </nav>
+        )}
+        <Routes>
+          <Route path="/" element={user ? <Home /> : <Navigate to="/login" />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/registro" element={<Register />} />
+          <Route
+            path="/semana"
+            element={user ? <WeekView /> : <Navigate to="/login" />}
+          />
+          <Route
+            path="/timer"
+            element={user ? <Timer /> : <Navigate to="/login" />}
+          />
+          <Route
+            path="/progreso"
+            element={user ? <Progress /> : <Navigate to="/login" />}
+          />
+          <Route
+            path="/nutricion"
+            element={user ? <Nutrition /> : <Navigate to="/login" />}
+          /> {/* ← Ruta para Nutrition */}
+        </Routes>
+      </Router>
+    </AppContext.Provider>
+  );
+}
+
+export default App;
