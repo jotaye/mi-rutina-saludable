@@ -1,3 +1,5 @@
+// src/App.jsx
+
 import React, { useState, useEffect, createContext } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate, Link } from "react-router-dom";
 import { initializeApp } from "firebase/app";
@@ -9,36 +11,41 @@ import WeekView from "./pages/WeekView";
 import Timer from "./components/Timer";
 import Progress from "./pages/Progress";
 import DarkModeToggle from "./components/DarkModeToggle";
-import Nutrition from "./pages/Nutrition"; 
+import Nutrition from "./pages/Nutrition";
 
-// --------------------------------------------------
-// Configuración de Firebase (copia la tuya aquí)
-// --------------------------------------------------
+// ----------------------------------------------
+// 1) Configuración de Firebase (copia tus datos)
+// ----------------------------------------------
 const firebaseConfig = {
-  apiKey: "AIzaSyC7jYi0ST5rfYvfZcb8QgeMmvvVcrKDFiU",
-  authDomain: "mi-rutina-saludable.firebaseapp.com",
-  projectId: "mi-rutina-saludable",
-  storageBucket: "mi-rutina-saludable.appspot.com",
-  messagingSenderId: "17810301001",
-  appId: "1:17810301001:web:a0d9b260b138c81980df98",
-  measurementId: "G-W2ZMDYK46E"
+  apiKey: "TU_API_KEY",
+  authDomain: "TU_AUTH_DOMAIN",
+  projectId: "TU_PROJECT_ID",
+  storageBucket: "TU_BUCKET",
+  messagingSenderId: "TU_SENDER_ID",
+  appId: "TU_APP_ID",
+  measurementId: "TU_MEASUREMENT_ID"
 };
 
 initializeApp(firebaseConfig);
 const auth = getAuth();
 
-// --------------------------------------------------
-// Contexto para tema, idioma y nivel de ejercicio
-// --------------------------------------------------
+// ----------------------------------------------------
+// 2) Contexto para compartir tema (darkMode) e idioma
+// ----------------------------------------------------
 export const AppContext = createContext();
 
 function App() {
+  // --------------------------------------------------
+  // Estados principales
+  // --------------------------------------------------
   const [user, setUser] = useState(null);
   const [darkMode, setDarkMode] = useState(false);
-  const [lang, setLang] = useState("es");           // "es" o "en"
-  const [loading, setLoading] = useState(true);     // Para el video de introducción
+  const [lang, setLang] = useState("es");      // "es" o "en"
+  const [loading, setLoading] = useState(true); // Controla el splash screen
 
-  // Listener de autenticación
+  // --------------------------------------------------
+  // 3) Listener de estado de autenticación de Firebase
+  // --------------------------------------------------
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (usr) => {
       setUser(usr);
@@ -46,27 +53,51 @@ function App() {
     return () => unsubscribe();
   }, []);
 
-  // Oscuro/claro
+  // --------------------------------------------------
+  // 4) Cambiar clase "dark" en <html> si darkMode = true
+  // --------------------------------------------------
   useEffect(() => {
     if (darkMode) document.documentElement.classList.add("dark");
     else document.documentElement.classList.remove("dark");
   }, [darkMode]);
 
-  // Cuando termine el video de intro.mov, ocultamos el loading screen
+  // --------------------------------------------------
+  // 5) Forzar que el splash desaparezca tras 3 segundos
+  // --------------------------------------------------
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      setLoading(false);
+    }, 3000); // 3000 ms = 3 segundos como máximo
+    return () => clearTimeout(timeoutId);
+  }, []);
+
+  // --------------------------------------------------
+  // 6) Cuando el video de introducción termine, ocultar splash
+  // --------------------------------------------------
   const handleIntroEnded = () => {
     setLoading(false);
   };
 
-  // Si estamos en “loading”, mostramos el intro.mov a pantalla completa
+  // --------------------------------------------------
+  // 7) Si ocurre error al cargar el video, ocultar splash
+  // --------------------------------------------------
+  const handleIntroError = () => {
+    setLoading(false);
+  };
+
+  // --------------------------------------------------
+  // 8) Si estamos en “loading”, mostramos splash full-screen
+  // --------------------------------------------------
   if (loading) {
     return (
       <div className="flex items-center justify-center h-screen bg-black">
         <video
-          src="/assets/intro.mov"
-          autoPlay
-          controls={false}
-          muted={false}
-          onEnded={handleIntroEnded}
+          src="/assets/intro.mov"     // Debe existir en public/assets/intro.mov
+          autoPlay                    // Forzamos reproducción automática
+          muted={true}                // Silenciado: necesario para que autoplay funcione
+          playsInline                 // Evita fullscreen forzado en iOS/Android
+          onEnded={handleIntroEnded}  // Al terminar el video, setLoading(false)
+          onError={handleIntroError}  // Si hay error, setLoading(false)
           className="w-full h-full object-cover"
         >
           Tu navegador no soporta reproducir este video.
@@ -75,9 +106,15 @@ function App() {
     );
   }
 
+  // --------------------------------------------------
+  // 9) Funciones para alternar modo oscuro e idioma
+  // --------------------------------------------------
   const toggleDarkMode = () => setDarkMode(!darkMode);
   const toggleLang = () => setLang((prev) => (prev === "es" ? "en" : "es"));
 
+  // --------------------------------------------------
+  // 10) Renderizado principal de la aplicación
+  // --------------------------------------------------
   return (
     <AppContext.Provider value={{ darkMode, toggleDarkMode, lang, toggleLang }}>
       <Router>
