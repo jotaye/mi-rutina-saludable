@@ -9,9 +9,11 @@ import WeekView from "./pages/WeekView";
 import Timer from "./components/Timer";
 import Progress from "./pages/Progress";
 import DarkModeToggle from "./components/DarkModeToggle";
-import Nutrition from "./pages/Nutrition";  // ← Importa la página Nutrition
+import Nutrition from "./pages/Nutrition"; 
 
-// Configuración de Firebase
+// --------------------------------------------------
+// Configuración de Firebase (copia la tuya aquí)
+// --------------------------------------------------
 const firebaseConfig = {
   apiKey: "AIzaSyC7jYi0ST5rfYvfZcb8QgeMmvvVcrKDFiU",
   authDomain: "mi-rutina-saludable.firebaseapp.com",
@@ -25,14 +27,18 @@ const firebaseConfig = {
 initializeApp(firebaseConfig);
 const auth = getAuth();
 
-// Contexto para compartir tema e idioma
+// --------------------------------------------------
+// Contexto para tema, idioma y nivel de ejercicio
+// --------------------------------------------------
 export const AppContext = createContext();
 
 function App() {
   const [user, setUser] = useState(null);
   const [darkMode, setDarkMode] = useState(false);
-  const [lang, setLang] = useState("es"); // "es" o "en"
+  const [lang, setLang] = useState("es");           // "es" o "en"
+  const [loading, setLoading] = useState(true);     // Para el video de introducción
 
+  // Listener de autenticación
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (usr) => {
       setUser(usr);
@@ -40,13 +46,34 @@ function App() {
     return () => unsubscribe();
   }, []);
 
+  // Oscuro/claro
   useEffect(() => {
-    if (darkMode) {
-      document.documentElement.classList.add("dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-    }
+    if (darkMode) document.documentElement.classList.add("dark");
+    else document.documentElement.classList.remove("dark");
   }, [darkMode]);
+
+  // Cuando termine el video de intro.mov, ocultamos el loading screen
+  const handleIntroEnded = () => {
+    setLoading(false);
+  };
+
+  // Si estamos en “loading”, mostramos el intro.mov a pantalla completa
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-screen bg-black">
+        <video
+          src="/assets/intro.mov"
+          autoPlay
+          controls={false}
+          muted={false}
+          onEnded={handleIntroEnded}
+          className="w-full h-full object-cover"
+        >
+          Tu navegador no soporta reproducir este video.
+        </video>
+      </div>
+    );
+  }
 
   const toggleDarkMode = () => setDarkMode(!darkMode);
   const toggleLang = () => setLang((prev) => (prev === "es" ? "en" : "es"));
@@ -55,19 +82,19 @@ function App() {
     <AppContext.Provider value={{ darkMode, toggleDarkMode, lang, toggleLang }}>
       <Router>
         {user && (
-          <nav className="p-4 bg-white dark:bg-gray-800 shadow flex justify-between">
+          <nav className="p-4 bg-white dark:bg-gray-800 shadow flex justify-between items-center">
             <div className="flex space-x-4">
-              <Link to="/" className="text-gray-700 dark:text-gray-200">
+              <Link to="/" className="text-gray-700 dark:text-gray-200 hover:underline">
                 {lang === "es" ? "Hoy" : "Today"}
               </Link>
-              <Link to="/semana" className="text-gray-700 dark:text-gray-200">
+              <Link to="/semana" className="text-gray-700 dark:text-gray-200 hover:underline">
                 {lang === "es" ? "Semana" : "Week"}
               </Link>
-              <Link to="/progreso" className="text-gray-700 dark:text-gray-200">
+              <Link to="/progreso" className="text-gray-700 dark:text-gray-200 hover:underline">
                 {lang === "es" ? "Progreso" : "Progress"}
               </Link>
-              <Link to="/nutricion" className="text-gray-700 dark:text-gray-200">
-                {lang === "es" ? "Nutrición" : "Nutrition"}  {/* ← Nuevo enlace */}
+              <Link to="/nutricion" className="text-gray-700 dark:text-gray-200 hover:underline">
+                {lang === "es" ? "Nutrición" : "Nutrition"}
               </Link>
             </div>
             <div className="flex space-x-4">
@@ -97,7 +124,7 @@ function App() {
           <Route
             path="/nutricion"
             element={user ? <Nutrition /> : <Navigate to="/login" />}
-          /> {/* ← Ruta para Nutrition */}
+          />
         </Routes>
       </Router>
     </AppContext.Provider>
