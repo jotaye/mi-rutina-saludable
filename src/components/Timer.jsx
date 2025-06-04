@@ -2,14 +2,8 @@
 
 import React, { useState, useEffect, useRef, useContext } from "react";
 import { ProgressContext } from "../context/ProgressContext";
+import { AppContext } from "../App";
 
-// Props:
-//  - duration: número de segundos (p.ej. 60)
-//  - ejercicio: nombre del ejercicio (“Jumping jacks”)
-//  - caloriesPerMin: cuántas calorías se queman por minuto (p.ej. 8)
-//  - dateStr: “YYYY-MM-DD”
-//  - onTimerStart?: función opcional cuando se inicie (no obligatoria)
-//  - className?: clase para el botón o contenedor
 export default function Timer({
   duration,
   ejercicio,
@@ -19,6 +13,7 @@ export default function Timer({
   className = "",
 }) {
   const { addProgress } = useContext(ProgressContext);
+  const { lang } = useContext(AppContext);
 
   const [segundosRestantes, setSegundosRestantes] = useState(duration);
   const [activo, setActivo] = useState(false);
@@ -27,7 +22,7 @@ export default function Timer({
   const intervalRef = useRef(null);
   const audioRef = useRef(null);
 
-  // 1) Formatea segundos a MM:SS
+  // Formatea segundos a MM:SS
   const formatTime = (secs) => {
     const minutos = Math.floor(secs / 60);
     const segundos = secs % 60;
@@ -36,7 +31,7 @@ export default function Timer({
     return `${mm}:${ss}`;
   };
 
-  // 2) Maneja el ciclo del timer
+  // Corre el temporizador hacia atrás
   useEffect(() => {
     if (activo && segundosRestantes > 0) {
       intervalRef.current = setInterval(() => {
@@ -49,52 +44,50 @@ export default function Timer({
     return () => clearInterval(intervalRef.current);
   }, [activo]);
 
-  // 3) Cuando segundosRestantes llegue a 0, marcamos completado y pitamos
+  // Cuando llega a cero, suena y registra progreso
   useEffect(() => {
     if (segundosRestantes === 0 && activo) {
       clearInterval(intervalRef.current);
       setActivo(false);
       setCompletado(true);
 
-      // 3.a) Suena la alarma
+      // Suena la alarma
       if (audioRef.current) {
         audioRef.current.currentTime = 0;
         audioRef.current.play();
       }
 
-      // 3.b) Calculamos calorías: 
-      //     caloriesPerMin (kcal/min) * (duration/60) 
+      // Calcula calorías quemadas: caloriesPerMin * (duration / 60)
       const durEnMin = duration / 60;
       const caloriasQuemadas = parseFloat((caloriesPerMin * durEnMin).toFixed(1));
 
-      // 3.c) Avisamos al contexto para sumar el progreso
+      // Añade el progreso al contexto
       addProgress(dateStr, ejercicio, duration, caloriasQuemadas);
     }
   }, [segundosRestantes, activo, duration, caloriesPerMin, ejercicio, dateStr, addProgress]);
 
-  // 4) Handler de botón Iniciar / Reiniciar
+  // Iniciar o reiniciar
   const handleStart = () => {
     if (completado) {
-      // Si ya estaba completado, reiniciamos todo
       setSegundosRestantes(duration);
       setCompletado(false);
       setActivo(false);
     } else {
       setActivo(true);
-      onTimerStart && onTimerStart(); // Llama a callback opcional
+      onTimerStart && onTimerStart();
     }
   };
 
   return (
     <div className={`flex flex-col items-center ${className}`}>
-      {/* 5) Mostrar cronómetro o estado */}
+      {/* Muestra MM:SS */}
       <div className="mb-2">
         <span className="text-xl font-mono text-gray-800 dark:text-gray-100">
           {formatTime(segundosRestantes)}
         </span>
       </div>
 
-      {/* 6) Botón Iniciar / Reiniciar */}
+      {/* Botón Iniciar / Reiniciar */}
       <button
         onClick={handleStart}
         disabled={activo}
@@ -117,7 +110,7 @@ export default function Timer({
           : "Start"}
       </button>
 
-      {/* 7) Componente <audio> para pitido al terminar */}
+      {/* Audio para el pitido cuando finaliza */}
       <audio ref={audioRef}>
         <source
           src="https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg"
