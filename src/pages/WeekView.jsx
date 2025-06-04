@@ -106,7 +106,7 @@ export default function WeekView() {
   };
 
   // 3) Plan de cardio semanal con tiempos de ejercicio y descanso
-  //    Cada día: array de objetos { ejercicio, duracion, descanso }
+  //    Ahora incluye Gym Bike (bicicleta estática)
   const cardioSemanal = {
     domingo: [
       {
@@ -124,9 +124,9 @@ export default function WeekView() {
         descanso: "1 min",
       },
       {
-        ejercicio_es: "Caminadora (trote suave)",
-        ejercicio_en: "Treadmill (light jog)",
-        duracion: "15 min",
+        ejercicio_es: "Gym Bike (bicicleta estática)",
+        ejercicio_en: "Stationary bike",
+        duracion: "15 min a ritmo suave",
         descanso: "2 min",
       },
     ],
@@ -143,6 +143,12 @@ export default function WeekView() {
         duracion: "30 s on / 30 s off × 8",
         descanso: "1 min después",
       },
+      {
+        ejercicio_es: "Gym Bike (intervalos)",
+        ejercicio_en: "Stationary bike intervals",
+        duracion: "1 min rápido / 1 min suave × 8",
+        descanso: "2 min después",
+      },
     ],
     miercoles: [
       {
@@ -154,6 +160,12 @@ export default function WeekView() {
       {
         ejercicio_es: "Caminadora (inclinación 5 %)",
         ejercicio_en: "Treadmill (5 % incline)",
+        duracion: "10 min",
+        descanso: "—",
+      },
+      {
+        ejercicio_es: "Gym Bike (ritmo constante)",
+        ejercicio_en: "Stationary bike (steady pace)",
         duracion: "10 min",
         descanso: "—",
       },
@@ -185,6 +197,12 @@ export default function WeekView() {
         duracion: "3 min a ritmo constante",
         descanso: "—",
       },
+      {
+        ejercicio_es: "Gym Bike (ritmo moderado)",
+        ejercicio_en: "Stationary bike (moderate pace)",
+        duracion: "10 min",
+        descanso: "—",
+      },
     ],
     sabado: [
       {
@@ -196,7 +214,7 @@ export default function WeekView() {
     ],
   };
 
-  // 4) Equipamiento para cardio en casa (solo descripciones; imágenes se añaden luego)
+  // 4) Equipamiento para cardio en casa (incluimos Gym Bike)
   const equipamientoCardio = [
     {
       key: "treadmill",
@@ -238,19 +256,27 @@ export default function WeekView() {
       desc_es: "Versátiles para press, curl, remo, sentadillas, etc.",
       desc_en: "Versatile for press, curl, row, squats, etc.",
     },
+    {
+      key: "gym-bike",
+      name_es: "Bicicleta estática (Gym Bike)",
+      name_en: "Stationary Bike",
+      image: "stationary-bike.jpg", // placeholder
+      desc_es: "Ideal para cardio de bajo impacto: ajusta resistencia y ritmo.",
+      desc_en: "Ideal for low-impact cardio: adjust resistance and pace.",
+    },
   ];
 
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900 p-6">
       {/* ──────────────────────────────────────────────────────────────────
-           1) Título General
+            1) Título General
          ────────────────────────────────────────────────────────────────── */}
       <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-6">
         {lang === "es" ? "Rutina Semanal" : "Weekly Routine"}
       </h1>
 
       {/* ──────────────────────────────────────────────────────────────────
-           2) Sección: Rutina Diaria con Videos (Calistenia)
+            2) Sección: Rutina Diaria con Videos (Calistenia)
          ────────────────────────────────────────────────────────────────── */}
       {dias.map((diaNombre) => {
         const clave = diaNombre.toLowerCase();
@@ -275,13 +301,13 @@ export default function WeekView() {
                     key={idx}
                     className="bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden shadow"
                   >
-                    {/* Miniatura (placeholder) – más tarde usarás <img src={`/assets/images/${ej.file.replace(".mov", ".jpg")}`} … /> */}
+                    {/* Miniatura (placeholder) – luego reemplaza por <img> */}
                     <div className="w-full h-48 bg-gray-300 dark:bg-gray-700 flex items-center justify-center">
                       <span className="text-gray-500 dark:text-gray-400">
                         {lang === "es" ? "Video pronto" : "Video coming soon"}
                       </span>
                     </div>
-                    {/* Video */}
+                    {/* Video real */}
                     <video
                       src={`/assets/${ej.file}`}
                       controls
@@ -308,7 +334,7 @@ export default function WeekView() {
       })}
 
       {/* ──────────────────────────────────────────────────────────────────
-           3) Sección: Plan de Cardio Semanal (Tiempos de ejercicio y descanso)
+            3) Sección: Plan de Cardio Semanal (Tiempos de ejercicio y descanso)
          ────────────────────────────────────────────────────────────────── */}
       <section className="mt-16">
         <h2 className="text-2xl font-semibold text-gray-700 dark:text-gray-200 mb-4">
@@ -377,7 +403,7 @@ export default function WeekView() {
       </section>
 
       {/* ──────────────────────────────────────────────────────────────────
-           4) Sección: Equipamiento / Máquinas para Cardio en Casa (Descripciones)
+            4) Sección: Equipamiento / Máquinas para Cardio en Casa
          ────────────────────────────────────────────────────────────────── */}
       <section className="mt-16">
         <h2 className="text-2xl font-semibold text-gray-700 dark:text-gray-200 mb-4">
