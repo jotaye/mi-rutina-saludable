@@ -1,5 +1,4 @@
 // src/components/Timer.jsx
-
 import React, { useState, useEffect, useRef, useContext } from "react";
 import { ProgressContext } from "../context/ProgressContext";
 import { AppContext } from "../App";
@@ -23,6 +22,7 @@ export default function Timer({ duration, ejercicio, caloriesPerMin, dateStr }) 
     return `${mm}:${ss}`;
   };
 
+  // Inicia o detiene el temporizador
   useEffect(() => {
     if (activo && segundosRestantes > 0) {
       intervalRef.current = setInterval(() => {
@@ -35,6 +35,7 @@ export default function Timer({ duration, ejercicio, caloriesPerMin, dateStr }) 
     return () => clearInterval(intervalRef.current);
   }, [activo]);
 
+  // Cuando llega a cero, suena alarma y guarda el progreso
   useEffect(() => {
     if (segundosRestantes === 0 && activo) {
       clearInterval(intervalRef.current);
@@ -45,7 +46,9 @@ export default function Timer({ duration, ejercicio, caloriesPerMin, dateStr }) 
         audioRef.current.play();
       }
       const durEnMin = duration / 60;
-      const caloriasQuemadas = parseFloat((caloriesPerMin * durEnMin).toFixed(1));
+      const caloriasQuemadas = parseFloat(
+        (caloriesPerMin * durEnMin).toFixed(1)
+      );
       addProgress(dateStr, ejercicio, duration, caloriasQuemadas);
     }
   }, [
