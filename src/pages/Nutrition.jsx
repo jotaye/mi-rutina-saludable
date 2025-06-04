@@ -6,7 +6,6 @@ import { AppContext } from "../App";
 export default function Nutrition() {
   const { lang } = useContext(AppContext);
 
-  // 1) Plan nutricional
   const planNutricional = {
     lunes: {
       desayuno: {
@@ -211,10 +210,10 @@ export default function Nutrition() {
       <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-6">
         {lang === "es" ? "Plan Nutricional" : "Nutrition Plan"}
       </h1>
-
       {Object.entries(planNutricional).map(([diaClave, info]) => {
-        const diaNombre = diaClave.charAt(0).toUpperCase() + diaClave.slice(1);
-        const diaEn = {
+        const diaNombre =
+          diaClave.charAt(0).toUpperCase() + diaClave.slice(1);
+        const mapEnglishDay = {
           lunes: "Monday",
           martes: "Tuesday",
           miercoles: "Wednesday",
@@ -222,7 +221,8 @@ export default function Nutrition() {
           viernes: "Friday",
           sabado: "Saturday",
           domingo: "Sunday",
-        }[diaClave];
+        };
+        const diaEn = mapEnglishDay[diaClave];
         const tituloDia = lang === "es" ? diaNombre : diaEn;
 
         return (
@@ -246,7 +246,6 @@ export default function Nutrition() {
                   </tr>
                 </thead>
                 <tbody>
-                  {/* Desayuno */}
                   <tr className="bg-white dark:bg-gray-900">
                     <td className="px-4 py-2 text-gray-700 dark:text-gray-200">
                       {lang === "es" ? "Desayuno" : "Breakfast"}
@@ -260,7 +259,6 @@ export default function Nutrition() {
                       {info.desayuno.calorias}
                     </td>
                   </tr>
-                  {/* Snack mañana */}
                   <tr className="bg-gray-50 dark:bg-gray-800">
                     <td className="px-4 py-2 text-gray-700 dark:text-gray-200">
                       {lang === "es" ? "Snack mañana" : "Morning snack"}
@@ -274,7 +272,6 @@ export default function Nutrition() {
                       {info.snack_manana.calorias}
                     </td>
                   </tr>
-                  {/* Almuerzo */}
                   <tr className="bg-white dark:bg-gray-900">
                     <td className="px-4 py-2 text-gray-700 dark:text-gray-200">
                       {lang === "es" ? "Almuerzo" : "Lunch"}
@@ -288,7 +285,6 @@ export default function Nutrition() {
                       {info.almuerzo.calorias}
                     </td>
                   </tr>
-                  {/* Snack tarde */}
                   <tr className="bg-gray-50 dark:bg-gray-800">
                     <td className="px-4 py-2 text-gray-700 dark:text-gray-200">
                       {lang === "es" ? "Snack tarde" : "Afternoon snack"}
@@ -302,7 +298,6 @@ export default function Nutrition() {
                       {info.snack_tarde.calorias}
                     </td>
                   </tr>
-                  {/* Cena */}
                   <tr className="bg-white dark:bg-gray-900">
                     <td className="px-4 py-2 text-gray-700 dark:text-gray-200">
                       {lang === "es" ? "Cena" : "Dinner"}
@@ -314,12 +309,11 @@ export default function Nutrition() {
                       {info.cena.calorias}
                     </td>
                   </tr>
-                  {/* Total Calorías */}
                   <tr className="bg-gray-100 dark:bg-gray-800">
                     <td className="px-4 py-2 text-gray-700 dark:text-gray-200">
                       {lang === "es" ? "Total calorías" : "Total calories"}
                     </td>
-                    <td className="px-4 py-2" />
+                    <td className="px-4 py-2"></td>
                     <td className="px-4 py-2 text-gray-700 dark:text-gray-200 font-semibold">
                       {info.total_calorias}
                     </td>
