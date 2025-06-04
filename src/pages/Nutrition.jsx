@@ -6,7 +6,7 @@ import { AppContext } from "../App";
 export default function Nutrition() {
   const { lang } = useContext(AppContext);
 
-  // 1) Plan nutricional diario (Diabetes Tipo 1/2)
+  // 1) Plan nutricional
   const planNutricional = {
     lunes: {
       desayuno: {
