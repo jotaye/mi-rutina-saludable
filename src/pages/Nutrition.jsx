@@ -6,8 +6,7 @@ import { AppContext } from "../App";
 export default function Nutrition() {
   const { lang } = useContext(AppContext);
 
-  // 1) Plan nutricional diario orientado a prevención/control de Diabetes Tipo 1/2
-  //    Cada día tiene desayuno, snack mañana, almuerzo, snack tarde, cena, con calorías aproximadas
+  // 1) Plan nutricional diario (Diabetes Tipo 1/2)
   const planNutricional = {
     lunes: {
       desayuno: {
@@ -207,7 +206,6 @@ export default function Nutrition() {
     },
   };
 
-  // 2) Renderizado del plan nutricional
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900 p-6">
       <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-6">
@@ -215,7 +213,6 @@ export default function Nutrition() {
       </h1>
 
       {Object.entries(planNutricional).map(([diaClave, info]) => {
-        // Transformamos la clave en nombre de día según idioma
         const diaNombre = diaClave.charAt(0).toUpperCase() + diaClave.slice(1);
         const diaEn = {
           lunes: "Monday",
@@ -226,7 +223,6 @@ export default function Nutrition() {
           sabado: "Saturday",
           domingo: "Sunday",
         }[diaClave];
-
         const tituloDia = lang === "es" ? diaNombre : diaEn;
 
         return (
