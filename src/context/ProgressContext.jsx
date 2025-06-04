@@ -2,30 +2,15 @@
 
 import React, { createContext, useState, useEffect } from "react";
 
-// Llave para almacenar en localStorage
+// Nombre de la llave en localStorage
 const STORAGE_KEY = "ws_progress";
 
-// Estructura de ProgressContext:
-// {
-//   progressData: {
-//     "YYYY-MM-DD": {
-//       "Nombre Ejercicio 1": { segundosAcumulados: XXX, caloríasAcumuladas: YYY },
-//       "Nombre Ejercicio 2": { … },
-//       …
-//     },
-//     "YYYY-MM-DD": { … },
-//     …
-//   },
-//   addProgress: (dateStr, ejercicio, segundos, calorias) => {},
-//   getDayProgress: (dateStr) => { /* devuelve el objeto de ese día */ },
-//   getAllProgress: () => { /* devuelve progressData completo */ }
-// }
 export const ProgressContext = createContext();
 
 export function ProgressProvider({ children }) {
   const [progressData, setProgressData] = useState({});
 
-  // 1) Al montar el componente, cargar lo guardado en localStorage
+  // 1) Cargar desde localStorage al montar
   useEffect(() => {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored) {
@@ -39,16 +24,16 @@ export function ProgressProvider({ children }) {
     }
   }, []);
 
-  // 2) Guardar progressData en localStorage cada vez que cambie
+  // 2) Guardar en localStorage cada vez que progressData cambie
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(progressData));
   }, [progressData]);
 
   // 3) Función para añadir progreso:
-  //    dateStr: “YYYY-MM-DD”
-  //    ejercicio: nombre legible del ejercicio
-  //    segundos: segundos completados
-  //    calorias: calorías quemadas en esos segundos
+  //    dateStr = “YYYY-MM-DD”
+  //    ejercicio = nombre legible del ejercicio
+  //    segundos = segundos completados
+  //    calorias = calorías quemadas en esos segundos
   const addProgress = (dateStr, ejercicio, segundos, calorias) => {
     setProgressData((prev) => {
       const dayData = prev[dateStr] ? { ...prev[dateStr] } : {};
