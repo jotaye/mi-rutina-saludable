@@ -25,8 +25,8 @@ export default function WeekView() {
         name_es: "Descanso activo",
         name_en: "Active rest",
         file: "rest.mov",
-        duration: 1200,  // 20 min
-        calPerMin: 3.5,  // 3.5 kcal/min al caminar
+        duration: 1200,
+        calPerMin: 3.5,
       },
     ],
     lunes: [
@@ -34,7 +34,7 @@ export default function WeekView() {
         name_es: "Jumping jacks",
         name_en: "Jumping jacks",
         file: "jumping-jacks.mov",
-        duration: 60,    // 1 min
+        duration: 60,
         calPerMin: 8,
       },
       {
@@ -186,8 +186,8 @@ export default function WeekView() {
         descanso: "1 min",
       },
       {
-        ejercicio_es: "Caminadora (inclinación 5 %)",
-        ejercicio_en: "Treadmill (5 % incline)",
+        ejercicio_es: "Caminadora (inclinación 5%)",
+        ejercicio_en: "Treadmill (5% incline)",
         duracion: "10 min",
         descanso: "—",
       },
@@ -242,7 +242,7 @@ export default function WeekView() {
     ],
   };
 
-  // 4) Equipamiento / Máquinas (incluye Gym Bike)
+  // 4) Lista de equipamiento / máquinas
   const equipamientoCardio = [
     {
       key: "treadmill",
@@ -294,27 +294,23 @@ export default function WeekView() {
     },
   ];
 
-  // 5) Fecha de hoy en “YYYY-MM-DD”
   const todayStr = new Date().toISOString().slice(0, 10);
 
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900 p-6">
-      {/* 1) Título General */}
       <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-6">
         {lang === "es" ? "Rutina Semanal" : "Weekly Routine"}
       </h1>
 
-      {/* 2) Sección: Rutina Diaria con Videos y Temporizadores */}
+      {/* Fuerza / Calistenia */}
       {dias.map((diaNombre) => {
         const clave = diaNombre.toLowerCase();
         const ejercicios = rutinaSemanal[clave] || [];
-
         return (
           <section key={diaNombre} className="mb-12">
             <h2 className="text-2xl font-semibold text-gray-700 dark:text-gray-200 mb-4">
               {diaNombre}
             </h2>
-
             {ejercicios.length === 0 ? (
               <p className="text-gray-600 dark:text-gray-400">
                 {lang === "es"
@@ -328,14 +324,11 @@ export default function WeekView() {
                     key={idx}
                     className="bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden shadow flex flex-col"
                   >
-                    {/* 2.a) Miniatura (placeholder) – luego reemplaza por <img> */}
                     <div className="w-full h-48 bg-gray-300 dark:bg-gray-700 flex items-center justify-center">
                       <span className="text-gray-500 dark:text-gray-400">
                         {lang === "es" ? "Video pronto" : "Video coming soon"}
                       </span>
                     </div>
-
-                    {/* 2.b) Video real */}
                     <video
                       src={`/assets/${ej.file}`}
                       controls
@@ -343,8 +336,6 @@ export default function WeekView() {
                     >
                       Tu navegador no soporta reproducir este video.
                     </video>
-
-                    {/* 2.c) Info + Temporizador */}
                     <div className="p-4 flex flex-col flex-grow">
                       <h3 className="text-lg font-medium text-gray-800 dark:text-gray-100 mb-2">
                         {lang === "es" ? ej.name_es : ej.name_en}
@@ -354,7 +345,6 @@ export default function WeekView() {
                           ? "3–4 series de 8–12 repeticiones"
                           : "3–4 sets of 8–12 reps"}
                       </p>
-
                       <div className="mt-auto">
                         <Timer
                           duration={ej.duration}
@@ -372,7 +362,7 @@ export default function WeekView() {
         );
       })}
 
-      {/* 3) Plan de Cardio Semanal */}
+      {/* Plan de Cardio Semanal */}
       <section className="mt-16">
         <h2 className="text-2xl font-semibold text-gray-700 dark:text-gray-200 mb-4">
           {lang === "es" ? "Plan de Cardio Semanal" : "Weekly Cardio Plan"}
@@ -380,7 +370,6 @@ export default function WeekView() {
         {dias.map((diaNombre) => {
           const clave = diaNombre.toLowerCase();
           const cardioDias = cardioSemanal[clave] || [];
-
           return (
             <div key={diaNombre} className="mb-10">
               <h3 className="text-xl font-semibold text-gray-700 dark:text-gray-200 mb-2">
@@ -388,9 +377,7 @@ export default function WeekView() {
               </h3>
               {cardioDias.length === 0 ? (
                 <p className="text-gray-600 dark:text-gray-400">
-                  {lang === "es"
-                    ? "No hay plan de cardio para este día."
-                    : "No cardio plan for this day."}
+                  {lang === "es" ? "No hay plan de cardio para este día." : "No cardio plan for this day."}
                 </p>
               ) : (
                 <table className="w-full table-auto bg-gray-50 dark:bg-gray-800 rounded-lg overflow-hidden shadow">
@@ -412,23 +399,14 @@ export default function WeekView() {
                     {cardioDias.map((c, idx) => (
                       <tr
                         key={idx}
-                        className={idx % 2 === 0
-                          ? "bg-white dark:bg-gray-900"
-                          : "bg-gray-50 dark:bg-gray-800"
-                        }
+                        className={idx % 2 === 0 ? "bg-white dark:bg-gray-900" : "bg-gray-50 dark:bg-gray-800"}
                       >
-                        <td className="px-4 py-2 text-gray-700 dark:text-gray-200">
-                          {idx + 1}
-                        </td>
+                        <td className="px-4 py-2 text-gray-700 dark:text-gray-200">{idx + 1}</td>
                         <td className="px-4 py-2 text-gray-700 dark:text-gray-200">
                           {lang === "es" ? c.ejercicio_es : c.ejercicio_en}
                         </td>
-                        <td className="px-4 py-2 text-gray-700 dark:text-gray-200">
-                          {c.duracion}
-                        </td>
-                        <td className="px-4 py-2 text-gray-700 dark:text-gray-200">
-                          {c.descanso}
-                        </td>
+                        <td className="px-4 py-2 text-gray-700 dark:text-gray-200">{c.duracion}</td>
+                        <td className="px-4 py-2 text-gray-700 dark:text-gray-200">{c.descanso}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -439,18 +417,14 @@ export default function WeekView() {
         })}
       </section>
 
-      {/* 4) Equipamiento / Máquinas */}
+      {/* Equipamiento / Máquinas */}
       <section className="mt-16">
         <h2 className="text-2xl font-semibold text-gray-700 dark:text-gray-200 mb-4">
           {lang === "es" ? "Equipamiento / Máquinas" : "Equipment / Machines"}
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
           {equipamientoCardio.map((eq) => (
-            <div
-              key={eq.key}
-              className="bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden shadow"
-            >
-              {/* Miniatura placeholder – luego reemplaza por <img> */}
+            <div key={eq.key} className="bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden shadow">
               <div className="w-full h-48 bg-gray-300 dark:bg-gray-700 flex items-center justify-center">
                 <span className="text-gray-500 dark:text-gray-400">
                   {lang === "es" ? "Imagen pronto" : "Image coming soon"}
