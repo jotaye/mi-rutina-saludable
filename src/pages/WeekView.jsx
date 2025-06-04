@@ -1,5 +1,4 @@
 // src/pages/WeekView.jsx
-
 import React, { useContext } from "react";
 import { AppContext } from "../App";
 import Timer from "../components/Timer";
@@ -7,7 +6,6 @@ import Timer from "../components/Timer";
 export default function WeekView() {
   const { lang } = useContext(AppContext);
 
-  // 1) Días de la semana en el idioma actual
   const dias = [
     lang === "es" ? "Domingo" : "Sunday",
     lang === "es" ? "Lunes" : "Monday",
@@ -18,14 +16,14 @@ export default function WeekView() {
     lang === "es" ? "Sábado" : "Saturday",
   ];
 
-  // 2) Rutina semanal: cada ejercicio con file, duración (segundos) y kcal/minuto
+  // Rutina semanal con sus videos, duración (segundos) y calorías por minuto
   const rutinaSemanal = {
     domingo: [
       {
         name_es: "Descanso activo",
         name_en: "Active rest",
         file: "rest.mov",
-        duration: 1200,
+        duration: 1200, // 20 minutos
         calPerMin: 3.5,
       },
     ],
@@ -68,7 +66,7 @@ export default function WeekView() {
         calPerMin: 5.5,
       },
     ],
-    miercoles: [
+    miércoles: [
       {
         name_es: "Sentadillas sin peso (bodyweight squat)",
         name_en: "Bodyweight squats",
@@ -123,7 +121,7 @@ export default function WeekView() {
         calPerMin: 11,
       },
     ],
-    sabado: [
+    sábado: [
       {
         name_es: "Yoga / Movilidad (20 min)",
         name_en: "Yoga / Mobility (20 min)",
@@ -134,7 +132,7 @@ export default function WeekView() {
     ],
   };
 
-  // 3) Plan de cardio semanal (texto + Gym Bike incluida)
+  // Plan de cardio semanal (solo tabla, sin temporizador)
   const cardioSemanal = {
     domingo: [
       {
@@ -178,7 +176,7 @@ export default function WeekView() {
         descanso: "2 min después",
       },
     ],
-    miercoles: [
+    miércoles: [
       {
         ejercicio_es: "Escaladora / Stepper",
         ejercicio_en: "Stepper",
@@ -232,7 +230,7 @@ export default function WeekView() {
         descanso: "—",
       },
     ],
-    sabado: [
+    sábado: [
       {
         ejercicio_es: "Yoga / Movilidad suave",
         ejercicio_en: "Yoga / Gentle mobility",
@@ -242,58 +240,6 @@ export default function WeekView() {
     ],
   };
 
-  // 4) Lista de equipamiento / máquinas
-  const equipamientoCardio = [
-    {
-      key: "treadmill",
-      name_es: "Caminadora (Treadmill)",
-      name_en: "Treadmill",
-      image: "treadmill.jpg",
-      desc_es: "Úsala para trote suave, intervalos de inclinación o carrera continua.",
-      desc_en: "Use for easy jogs, incline intervals or continuous running.",
-    },
-    {
-      key: "elliptical",
-      name_es: "Elíptica (Elliptical)",
-      name_en: "Elliptical",
-      image: "elliptical.jpg",
-      desc_es: "Excelente para cardio de bajo impacto y trabajo de piernas.",
-      desc_en: "Great for low-impact cardio and leg work.",
-    },
-    {
-      key: "stepper",
-      name_es: "Escaladora / Stepper",
-      name_en: "Stepper",
-      image: "stepper.jpg",
-      desc_es: "Simula subir escaleras: fortalece glúteos y cuádriceps.",
-      desc_en: "Simulates stair climbing: strengthens glutes and quads.",
-    },
-    {
-      key: "jump-rope",
-      name_es: "Cuerda de saltar",
-      name_en: "Jump rope",
-      image: "jump-rope.jpg",
-      desc_es: "Cardio explosivo: mejora coordinación y quema calorías rápido.",
-      desc_en: "Explosive cardio: improves coordination and burns calories fast.",
-    },
-    {
-      key: "dumbbells",
-      name_es: "Mancuernas",
-      name_en: "Dumbbells",
-      image: "dumbbells.jpg",
-      desc_es: "Versátiles para press, curl, remo, sentadillas, etc.",
-      desc_en: "Versatile for press, curl, row, squats, etc.",
-    },
-    {
-      key: "gym-bike",
-      name_es: "Bicicleta estática (Gym Bike)",
-      name_en: "Stationary Bike",
-      image: "stationary-bike.jpg",
-      desc_es: "Ideal para cardio de bajo impacto: ajusta resistencia y ritmo.",
-      desc_en: "Ideal for low-impact cardio: adjust resistance and pace.",
-    },
-  ];
-
   const todayStr = new Date().toISOString().slice(0, 10);
 
   return (
@@ -302,7 +248,6 @@ export default function WeekView() {
         {lang === "es" ? "Rutina Semanal" : "Weekly Routine"}
       </h1>
 
-      {/* Fuerza / Calistenia */}
       {dias.map((diaNombre) => {
         const clave = diaNombre.toLowerCase();
         const ejercicios = rutinaSemanal[clave] || [];
@@ -324,11 +269,13 @@ export default function WeekView() {
                     key={idx}
                     className="bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden shadow flex flex-col"
                   >
+                    {/* Placeholder "Video pronto" */}
                     <div className="w-full h-48 bg-gray-300 dark:bg-gray-700 flex items-center justify-center">
                       <span className="text-gray-500 dark:text-gray-400">
                         {lang === "es" ? "Video pronto" : "Video coming soon"}
                       </span>
                     </div>
+                    {/* Reproduce el video .mov cuando esté disponible */}
                     <video
                       src={`/assets/${ej.file}`}
                       controls
@@ -342,8 +289,8 @@ export default function WeekView() {
                       </h3>
                       <p className="text-gray-600 dark:text-gray-300 mb-4">
                         {lang === "es"
-                          ? "3–4 series de 8–12 repeticiones"
-                          : "3–4 sets of 8–12 reps"}
+                          ? "3—4 series de 8—12 repeticiones"
+                          : "3—4 sets of 8—12 reps"}
                       </p>
                       <div className="mt-auto">
                         <Timer
@@ -362,7 +309,6 @@ export default function WeekView() {
         );
       })}
 
-      {/* Plan de Cardio Semanal */}
       <section className="mt-16">
         <h2 className="text-2xl font-semibold text-gray-700 dark:text-gray-200 mb-4">
           {lang === "es" ? "Plan de Cardio Semanal" : "Weekly Cardio Plan"}
@@ -399,14 +345,24 @@ export default function WeekView() {
                     {cardioDias.map((c, idx) => (
                       <tr
                         key={idx}
-                        className={idx % 2 === 0 ? "bg-white dark:bg-gray-900" : "bg-gray-50 dark:bg-gray-800"}
+                        className={
+                          idx % 2 === 0
+                            ? "bg-white dark:bg-gray-900"
+                            : "bg-gray-50 dark:bg-gray-800"
+                        }
                       >
-                        <td className="px-4 py-2 text-gray-700 dark:text-gray-200">{idx + 1}</td>
-                        <td className="px-4 py-2 text-gray-700 dark:text-gray-200">
+                        <td className="border px-4 py-2 text-gray-700 dark:text-gray-300">
+                          {idx + 1}
+                        </td>
+                        <td className="border px-4 py-2 text-gray-700 dark:text-gray-300">
                           {lang === "es" ? c.ejercicio_es : c.ejercicio_en}
                         </td>
-                        <td className="px-4 py-2 text-gray-700 dark:text-gray-200">{c.duracion}</td>
-                        <td className="px-4 py-2 text-gray-700 dark:text-gray-200">{c.descanso}</td>
+                        <td className="border px-4 py-2 text-gray-700 dark:text-gray-300">
+                          {c.duracion}
+                        </td>
+                        <td className="border px-4 py-2 text-gray-700 dark:text-gray-300">
+                          {c.descanso}
+                        </td>
                       </tr>
                     ))}
                   </tbody>
@@ -415,32 +371,6 @@ export default function WeekView() {
             </div>
           );
         })}
-      </section>
-
-      {/* Equipamiento / Máquinas */}
-      <section className="mt-16">
-        <h2 className="text-2xl font-semibold text-gray-700 dark:text-gray-200 mb-4">
-          {lang === "es" ? "Equipamiento / Máquinas" : "Equipment / Machines"}
-        </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-          {equipamientoCardio.map((eq) => (
-            <div key={eq.key} className="bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden shadow">
-              <div className="w-full h-48 bg-gray-300 dark:bg-gray-700 flex items-center justify-center">
-                <span className="text-gray-500 dark:text-gray-400">
-                  {lang === "es" ? "Imagen pronto" : "Image coming soon"}
-                </span>
-              </div>
-              <div className="p-4">
-                <h3 className="text-lg font-medium text-gray-800 dark:text-gray-100 mb-2">
-                  {lang === "es" ? eq.name_es : eq.name_en}
-                </h3>
-                <p className="text-gray-600 dark:text-gray-300">
-                  {lang === "es" ? eq.desc_es : eq.desc_en}
-                </p>
-              </div>
-            </div>
-          ))}
-        </div>
       </section>
     </div>
   );
