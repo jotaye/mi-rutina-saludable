@@ -8,18 +8,13 @@ export default function Progress() {
   const { lang } = useContext(AppContext);
   const { progressData, getDayProgress } = useContext(ProgressContext);
 
-  // 1) Fecha de hoy en formato “YYYY-MM-DD”
+  // 1) Fecha actual en “YYYY-MM-DD”
   const todayStr = new Date().toISOString().slice(0, 10);
 
-  // 2) Progreso del día de hoy (si el usuario completó ejercicios)
+  // 2) Progreso de hoy (puede ser un objeto vacío si no hay registros)
   const hoyProgress = getDayProgress(todayStr);
-  // Ejemplo de hoyProgress:
-  // {
-  //   "Jumping jacks": { segundosAcumulados: 60, caloríasAcumuladas: 8 },
-  //   "Push-ups": { segundosAcumulados: 45, caloríasAcumuladas: 5.6 },
-  // }
 
-  // 3) Sumar total de segundos y calorías de hoy
+  // 3) Sumar segundos y calorías de hoy
   const totalSegHoy = Object.values(hoyProgress).reduce(
     (acc, cur) => acc + cur.segundosAcumulados,
     0
@@ -29,13 +24,12 @@ export default function Progress() {
     0
   );
 
-  // 4) Construir histórico de los últimos 7 días (incluyendo hoy)
+  // 4) Histórico de los últimos 7 días (incluyendo hoy)
   const diasSemana = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
   const hoyDate = new Date();
 
   const historicoSemanal = [];
   for (let i = 6; i >= 0; i--) {
-    // Fecha i días atrás
     const fecha = new Date(hoyDate);
     fecha.setDate(hoyDate.getDate() - i);
     const dateStr = fecha.toISOString().slice(0, 10);
@@ -65,9 +59,8 @@ export default function Progress() {
         {lang === "es" ? "Progreso Diario" : "Daily Progress"}
       </h1>
 
-      {/* Resumen de hoy: tiempo y calorías */}
+      {/* 1) Resumen de hoy */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-12">
-        {/* Tiempo entrenado hoy */}
         <div className="bg-gray-100 dark:bg-gray-800 rounded-lg p-4 shadow">
           <h2 className="text-xl font-semibold text-gray-700 dark:text-gray-200 mb-2">
             {lang === "es" ? "Tiempo entrenado hoy" : "Time trained today"}
@@ -79,8 +72,6 @@ export default function Progress() {
             </span>
           </p>
         </div>
-
-        {/* Calorías quemadas hoy */}
         <div className="bg-gray-100 dark:bg-gray-800 rounded-lg p-4 shadow">
           <h2 className="text-xl font-semibold text-gray-700 dark:text-gray-200 mb-2">
             {lang === "es" ? "Calorías quemadas hoy" : "Calories burned today"}
@@ -94,7 +85,7 @@ export default function Progress() {
         </div>
       </div>
 
-      {/* Histórico semanal: tabla */}
+      {/* 2) Histórico semanal */}
       <div>
         <h2 className="text-2xl font-semibold text-gray-700 dark:text-gray-200 mb-4">
           {lang === "es" ? "Histórico Semanal" : "Weekly History"}
