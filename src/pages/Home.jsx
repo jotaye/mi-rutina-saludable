@@ -1,5 +1,4 @@
 // src/pages/Home.jsx
-
 import React, { useContext } from "react";
 import { AppContext } from "../App";
 
@@ -25,10 +24,10 @@ export default function Home() {
       "Sentadillas con mancuerna - 3x10",
     ],
     martes: ["Flexiones inclinadas - 4x12", "Press con pesas - 3x10"],
-    miercoles: ["Sentadillas sin peso - 4x15", "Zancadas - 3x12 por pierna"],
+    miércoles: ["Sentadillas sin peso - 4x15", "Zancadas - 3x12 por pierna"],
     jueves: ["Dominadas asistidas - 3x8", "Curl con pesas - 3x12"],
     viernes: ["20 burpees", "15 sentadillas con salto", "10 flexiones explosivas"],
-    sabado: ["Yoga / Movilidad 20 min"],
+    sábado: ["Yoga / Movilidad 20 min"],
     domingo: ["Descanso activo"],
   };
 
@@ -36,7 +35,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen p-4 bg-white dark:bg-gray-900">
-      <h1 className="text-3xl font-bold mb-2 text-gray-800 dark:text-gray-100">
+      <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-4">
         {lang === "es"
           ? `Mi rutina de hoy (${diaHoy})`
           : `My routine for today (${diaHoy})`}
