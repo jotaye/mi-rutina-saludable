@@ -17,13 +17,11 @@ import Home from "./pages/Home";
 import WeekView from "./pages/WeekView";
 import Progress from "./pages/Progress";
 import Nutrition from "./pages/Nutrition";
-import Timer from "./components/Timer";
 import DarkModeToggle from "./components/DarkModeToggle";
 
-// --------------------------------------------------
-// Importa el ProgressProvider
+// ───────── Importa el ProgressProvider ─────────
 import { ProgressProvider } from "./context/ProgressContext";
-// --------------------------------------------------
+// ──────────────────────────────────────────────────
 
 const firebaseConfig = {
   apiKey: "AIzaSyC7jYi0ST5rfYvfZcb8QgeMmvvVcrKDFiU",
@@ -41,7 +39,6 @@ const auth = getAuth();
 export const AppContext = createContext();
 
 function App() {
-  // Estados y lógica de Splash + Auth (ya los tenías)
   const [user, setUser] = useState(null);
   const [darkMode, setDarkMode] = useState(false);
   const [lang, setLang] = useState("es");
@@ -96,7 +93,7 @@ function App() {
     );
   }
 
-  const toggleDarkMode = () => setDarkMode(!darkMode);
+  const toggleDarkMode = () => setDarkMode((prev) => !prev);
   const toggleLang = () => setLang((prev) => (prev === "es" ? "en" : "es"));
 
   return (
@@ -137,10 +134,6 @@ function App() {
             <Route
               path="/semana"
               element={user ? <WeekView /> : <Navigate to="/login" />}
-            />
-            <Route
-              path="/timer"
-              element={user ? <Timer /> : <Navigate to="/login" />}
             />
             <Route
               path="/progreso"
