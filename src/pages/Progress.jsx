@@ -2,74 +2,98 @@
 
 import React, { useContext } from "react";
 import { AppContext } from "../App";
+import { ProgressContext } from "../context/ProgressContext";
 
 export default function Progress() {
   const { lang } = useContext(AppContext);
+  const { progressData, getDayProgress } = useContext(ProgressContext);
 
-  // 1) Datos simulados de progreso (puedes reemplazar con datos reales o consumir de un backend)
-  //    - tiempoEntrenamiento: minutos totales esta semana
-  //    - caloriasQuemadas: calorías aproximadas quemadas
-  //    - diasCompletados: cuántos días de la rutina completaste (0–7)
-  const progresoSemana = {
-    tiempoEntrenamiento: 220, // minutos totales
-    caloriasQuemadas: 1800,   // calorías totales
-    diasCompletados: 5,       // de 7
-    historicoSemanal: [
-      { dia: "Lun", calorias: 320, minutos: 40 },
-      { dia: "Mar", calorias: 310, minutos: 45 },
-      { dia: "Mié", calorias: 250, minutos: 30 },
-      { dia: "Jue", calorias: 300, minutos: 40 },
-      { dia: "Vie", calorias: 350, minutos: 50 },
-      { dia: "Sáb", calorias: 0, minutos: 20 },  // yoga suave
-      { dia: "Dom", calorias: 0, minutos: 0 }    // descanso
-    ],
-  };
+  // 1) Fecha de hoy en “YYYY-MM-DD”
+  const todayStr = new Date().toISOString().slice(0, 10);
+
+  // 2) Obtenemos el progreso del día de hoy (objeto con cada ejercicio)
+  const hoyProgress = getDayProgress(todayStr);
+  //    Ejemplo: 
+  //    {
+  //      "Jumping jacks": { segundosAcumulados: 60, caloríasAcumuladas: 8 },
+  //      "Push-ups": { segundosAcumulados: 45, caloríasAcumuladas: 5.6 },
+  //    }
+
+  // 3) Sumamos total de tiempo y calorías de hoy
+  const totalSegHoy = Object.values(hoyProgress).reduce(
+    (acc, cur) => acc + cur.segundosAcumulados,
+    0
+  );
+  const totalCalHoy = Object.values(hoyProgress).reduce(
+    (acc, cur) => acc + cur.caloríasAcumuladas,
+    0
+  );
+
+  // 4) Para el histórico semanal: tomamos los últimos 7 días en progressData
+  //    Creamos un array con objetos { dia: “Lun”, calorías: X, minutos: Y }
+  const diasSemana = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
+  const hoyDate = new Date();
+
+  const historicoSemanal = [];
+  for (let i = 0; i < 7; i++) {
+    // Calculamos la fecha hace i días
+    const fecha = new Date(hoyDate);
+    fecha.setDate(hoyDate.getDate() - i);
+    const dateStr = fecha.toISOString().slice(0, 10);
+
+    // Extraemos datos de ese día
+    const dayData = progressData[dateStr] || {};
+    const totalSeg = Object.values(dayData).reduce(
+      (acc, cur) => acc + cur.segundosAcumulados,
+      0
+    );
+    const totalCal = Object.values(dayData).reduce(
+      (acc, cur) => acc + cur.caloríasAcumuladas,
+      0
+    );
+
+    // Nombre abreviado (p.ej. “Lun”)
+    const dayName = diasSemana[fecha.getDay()].slice(0, 3);
+
+    historicoSemanal.unshift({
+      dia: dayName,
+      minutos: Math.floor(totalSeg / 60),
+      calorias: Math.round(totalCal),
+    });
+  }
 
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900 p-6">
       <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-6">
-        {lang === "es" ? "Progreso Semanal" : "Weekly Progress"}
+        {lang === "es" ? "Progreso Diario" : "Daily Progress"}
       </h1>
 
       {/* ──────────────────────────────────────────────────────────────────
-           1) Resumen general: tiempo, calorías y días completados
+           1) Resumen para HOY: tiempo y calorías
          ────────────────────────────────────────────────────────────────── */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-12">
-        {/* Tiempo total de entrenamiento */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6 mb-12">
+        {/* Tiempo entrenado hoy */}
         <div className="bg-gray-100 dark:bg-gray-800 rounded-lg p-4 shadow">
-          <h2 className="text-xl font-semibold text-gray-700 dark:text-gray-200">
-            {lang === "es" ? "Tiempo total" : "Total Time"}
+          <h2 className="text-xl font-semibold text-gray-700 dark:text-gray-200 mb-2">
+            {lang === "es" ? "Tiempo entrenado hoy" : "Time trained today"}
           </h2>
-          <p className="text-3xl font-bold text-blue-600 dark:text-blue-400 mt-2">
-            {progresoSemana.tiempoEntrenamiento}{" "}
+          <p className="text-3xl font-bold text-blue-600 dark:text-blue-400">
+            {Math.floor(totalSegHoy / 60)}{" "}
             <span className="text-base text-gray-600 dark:text-gray-300">
-              {lang === "es" ? "minutos" : "min"}
+              {lang === "es" ? "min" : "min"}
             </span>
           </p>
         </div>
 
-        {/* Calorías quemadas */}
+        {/* Calorías quemadas hoy */}
         <div className="bg-gray-100 dark:bg-gray-800 rounded-lg p-4 shadow">
-          <h2 className="text-xl font-semibold text-gray-700 dark:text-gray-200">
-            {lang === "es" ? "Calorías quemadas" : "Calories Burned"}
+          <h2 className="text-xl font-semibold text-gray-700 dark:text-gray-200 mb-2">
+            {lang === "es" ? "Calorías quemadas hoy" : "Calories burned today"}
           </h2>
-          <p className="text-3xl font-bold text-red-600 dark:text-red-400 mt-2">
-            {progresoSemana.caloriasQuemadas}{" "}
+          <p className="text-3xl font-bold text-red-600 dark:text-red-400">
+            {Math.round(totalCalHoy)}{" "}
             <span className="text-base text-gray-600 dark:text-gray-300">
               kcal
-            </span>
-          </p>
-        </div>
-
-        {/* Días completados de la rutina */}
-        <div className="bg-gray-100 dark:bg-gray-800 rounded-lg p-4 shadow">
-          <h2 className="text-xl font-semibold text-gray-700 dark:text-gray-200">
-            {lang === "es" ? "Días completados" : "Days Completed"}
-          </h2>
-          <p className="text-3xl font-bold text-green-600 dark:text-green-400 mt-2">
-            {progresoSemana.diasCompletados}{" "}
-            <span className="text-base text-gray-600 dark:text-gray-300">
-              / 7
             </span>
           </p>
         </div>
@@ -80,7 +104,7 @@ export default function Progress() {
          ────────────────────────────────────────────────────────────────── */}
       <div>
         <h2 className="text-2xl font-semibold text-gray-700 dark:text-gray-200 mb-4">
-          {lang === "es" ? "Histórico Diario" : "Daily History"}
+          {lang === "es" ? "Histórico Semanal" : "Weekly History"}
         </h2>
         <table className="w-full table-auto bg-gray-50 dark:bg-gray-800 rounded-lg overflow-hidden shadow">
           <thead>
@@ -90,15 +114,15 @@ export default function Progress() {
                 {lang === "es" ? "Día" : "Day"}
               </th>
               <th className="px-4 py-2 text-left text-gray-700 dark:text-gray-200">
-                {lang === "es" ? "Calorías" : "Calories"}
+                {lang === "es" ? "Minutos" : "Minutes"}
               </th>
               <th className="px-4 py-2 text-left text-gray-700 dark:text-gray-200">
-                {lang === "es" ? "Minutos" : "Minutes"}
+                {lang === "es" ? "Calorías" : "Calories"}
               </th>
             </tr>
           </thead>
           <tbody>
-            {progresoSemana.historicoSemanal.map((dia, idx) => (
+            {historicoSemanal.map((dia, idx) => (
               <tr
                 key={idx}
                 className={idx % 2 === 0
@@ -113,13 +137,12 @@ export default function Progress() {
                   {dia.dia}
                 </td>
                 <td className="px-4 py-2 text-gray-700 dark:text-gray-200">
-                  {dia.calorias} kcal
+                  {dia.minutos}{" "}
+                  <span className="text-gray-500 dark:text-gray-400 text-sm">min</span>
                 </td>
                 <td className="px-4 py-2 text-gray-700 dark:text-gray-200">
-                  {dia.minutos}{" "}
-                  <span className="text-gray-500 dark:text-gray-400 text-sm">
-                    {lang === "es" ? "min" : "min"}
-                  </span>
+                  {dia.calorias}{" "}
+                  <span className="text-gray-500 dark:text-gray-400 text-sm">kcal</span>
                 </td>
               </tr>
             ))}
