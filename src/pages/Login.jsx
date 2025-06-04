@@ -31,9 +31,7 @@ export default function Login() {
           {lang === "es" ? "Iniciar sesión" : "Log In"}
         </h2>
 
-        {errorMsg && (
-          <p className="text-red-500 text-sm mb-2">{errorMsg}</p>
-        )}
+        {errorMsg && <p className="text-red-500 text-sm mb-2">{errorMsg}</p>}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
@@ -70,10 +68,7 @@ export default function Login() {
 
         <p className="text-center text-sm text-gray-500 mt-4">
           {lang === "es" ? "¿No tienes cuenta?" : "Don’t have an account?"}{" "}
-          <a
-            href="/registro"
-            className="text-blue-600 hover:underline"
-          >
+          <a href="/registro" className="text-blue-600 hover:underline">
             {lang === "es" ? "Regístrate" : "Sign Up"}
           </a>
         </p>
