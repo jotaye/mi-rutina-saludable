@@ -9,7 +9,7 @@ import {
   Link
 } from "react-router-dom";
 import { initializeApp } from "firebase/app";
-import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
 
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -19,9 +19,7 @@ import Progress from "./pages/Progress";
 import Nutrition from "./pages/Nutrition";
 import DarkModeToggle from "./components/DarkModeToggle";
 
-// ───────── Importa el ProgressProvider ─────────
 import { ProgressProvider } from "./context/ProgressContext";
-// ──────────────────────────────────────────────────
 
 const firebaseConfig = {
   apiKey: "AIzaSyC7jYi0ST5rfYvfZcb8QgeMmvvVcrKDFiU",
@@ -54,17 +52,13 @@ function App() {
   }, []);
 
   useEffect(() => {
-    if (darkMode) document.documentElement.classList.add("dark");
-    else document.documentElement.classList.remove("dark");
+    document.documentElement.classList.toggle("dark", darkMode);
   }, [darkMode]);
 
   useEffect(() => {
     const timeoutId = setTimeout(() => setLoadingIntro(false), 3000);
     return () => clearTimeout(timeoutId);
   }, []);
-
-  const handleIntroEnded = () => setLoadingIntro(false);
-  const handleIntroError = () => setLoadingIntro(false);
 
   if (loadingIntro) {
     return (
@@ -75,8 +69,6 @@ function App() {
           loop
           muted
           playsInline
-          onEnded={handleIntroEnded}
-          onError={handleIntroError}
           className="w-full h-full object-cover"
         >
           Tu navegador no soporta reproducir este video.
@@ -88,7 +80,7 @@ function App() {
   if (!authChecked) {
     return (
       <div className="flex items-center justify-center h-screen bg-white">
-        <p className="text-gray-500">Cargando…</p>
+        <p className="text-gray-500">Cargando …</p>
       </div>
     );
   }
@@ -97,7 +89,6 @@ function App() {
   const toggleLang = () => setLang((prev) => (prev === "es" ? "en" : "es"));
 
   return (
-    // ───────── Envolvemos con ProgressProvider ─────────
     <ProgressProvider>
       <AppContext.Provider value={{ darkMode, toggleDarkMode, lang, toggleLang }}>
         <Router>
@@ -117,7 +108,15 @@ function App() {
                   {lang === "es" ? "Nutrición" : "Nutrition"}
                 </Link>
               </div>
-              <div className="flex space-x-4">
+              <div className="flex space-x-4 items-center">
+                <button
+                  onClick={() => {
+                    signOut(auth);
+                  }}
+                  className="text-red-600 hover:underline"
+                >
+                  {lang === "es" ? "Cerrar sesión" : "Log Out"}
+                </button>
                 <button onClick={toggleLang} className="text-gray-700 dark:text-gray-200">
                   {lang === "es" ? "EN" : "ES"}
                 </button>
@@ -130,24 +129,13 @@ function App() {
             <Route path="/" element={user ? <Home /> : <Navigate to="/login" />} />
             <Route path="/login" element={<Login />} />
             <Route path="/registro" element={<Register />} />
-
-            <Route
-              path="/semana"
-              element={user ? <WeekView /> : <Navigate to="/login" />}
-            />
-            <Route
-              path="/progreso"
-              element={user ? <Progress /> : <Navigate to="/login" />}
-            />
-            <Route
-              path="/nutricion"
-              element={user ? <Nutrition /> : <Navigate to="/login" />}
-            />
+            <Route path="/semana" element={user ? <WeekView /> : <Navigate to="/login" />} />
+            <Route path="/progreso" element={user ? <Progress /> : <Navigate to="/login" />} />
+            <Route path="/nutricion" element={user ? <Nutrition /> : <Navigate to="/login" />} />
           </Routes>
         </Router>
       </AppContext.Provider>
     </ProgressProvider>
-    // ────────────────────────────────────────────────────────
   );
 }
 
