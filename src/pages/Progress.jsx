@@ -8,18 +8,18 @@ export default function Progress() {
   const { lang } = useContext(AppContext);
   const { progressData, getDayProgress } = useContext(ProgressContext);
 
-  // 1) Fecha de hoy en “YYYY-MM-DD”
+  // 1) Fecha de hoy en formato “YYYY-MM-DD”
   const todayStr = new Date().toISOString().slice(0, 10);
 
-  // 2) Obtenemos el progreso del día de hoy (objeto con cada ejercicio)
+  // 2) Progreso del día de hoy (si el usuario completó ejercicios)
   const hoyProgress = getDayProgress(todayStr);
-  //    Ejemplo: 
-  //    {
-  //      "Jumping jacks": { segundosAcumulados: 60, caloríasAcumuladas: 8 },
-  //      "Push-ups": { segundosAcumulados: 45, caloríasAcumuladas: 5.6 },
-  //    }
+  // Ejemplo de hoyProgress:
+  // {
+  //   "Jumping jacks": { segundosAcumulados: 60, caloríasAcumuladas: 8 },
+  //   "Push-ups": { segundosAcumulados: 45, caloríasAcumuladas: 5.6 },
+  // }
 
-  // 3) Sumamos total de tiempo y calorías de hoy
+  // 3) Sumar total de segundos y calorías de hoy
   const totalSegHoy = Object.values(hoyProgress).reduce(
     (acc, cur) => acc + cur.segundosAcumulados,
     0
@@ -29,19 +29,17 @@ export default function Progress() {
     0
   );
 
-  // 4) Para el histórico semanal: tomamos los últimos 7 días en progressData
-  //    Creamos un array con objetos { dia: “Lun”, calorías: X, minutos: Y }
+  // 4) Construir histórico de los últimos 7 días (incluyendo hoy)
   const diasSemana = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
   const hoyDate = new Date();
 
   const historicoSemanal = [];
-  for (let i = 0; i < 7; i++) {
-    // Calculamos la fecha hace i días
+  for (let i = 6; i >= 0; i--) {
+    // Fecha i días atrás
     const fecha = new Date(hoyDate);
     fecha.setDate(hoyDate.getDate() - i);
     const dateStr = fecha.toISOString().slice(0, 10);
 
-    // Extraemos datos de ese día
     const dayData = progressData[dateStr] || {};
     const totalSeg = Object.values(dayData).reduce(
       (acc, cur) => acc + cur.segundosAcumulados,
@@ -52,10 +50,9 @@ export default function Progress() {
       0
     );
 
-    // Nombre abreviado (p.ej. “Lun”)
     const dayName = diasSemana[fecha.getDay()].slice(0, 3);
 
-    historicoSemanal.unshift({
+    historicoSemanal.push({
       dia: dayName,
       minutos: Math.floor(totalSeg / 60),
       calorias: Math.round(totalCal),
@@ -68,10 +65,8 @@ export default function Progress() {
         {lang === "es" ? "Progreso Diario" : "Daily Progress"}
       </h1>
 
-      {/* ──────────────────────────────────────────────────────────────────
-           1) Resumen para HOY: tiempo y calorías
-         ────────────────────────────────────────────────────────────────── */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6 mb-12">
+      {/* Resumen de hoy: tiempo y calorías */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-12">
         {/* Tiempo entrenado hoy */}
         <div className="bg-gray-100 dark:bg-gray-800 rounded-lg p-4 shadow">
           <h2 className="text-xl font-semibold text-gray-700 dark:text-gray-200 mb-2">
@@ -99,9 +94,7 @@ export default function Progress() {
         </div>
       </div>
 
-      {/* ──────────────────────────────────────────────────────────────────
-           2) Histórico semanal: tabla con calorías y minutos por día
-         ────────────────────────────────────────────────────────────────── */}
+      {/* Histórico semanal: tabla */}
       <div>
         <h2 className="text-2xl font-semibold text-gray-700 dark:text-gray-200 mb-4">
           {lang === "es" ? "Histórico Semanal" : "Weekly History"}
