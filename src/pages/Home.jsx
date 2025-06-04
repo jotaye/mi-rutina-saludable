@@ -18,9 +18,12 @@ export default function Home() {
   const hoy = new Date().getDay();
   const diaHoy = dias[hoy];
 
-  // Rutina por defecto del día (solo para Home, sin timer)
   const rutina = {
-    lunes: ["Jumping jacks - 2 min", "Flexiones - 4x10", "Sentadillas con mancuerna - 3x10"],
+    lunes: [
+      "Jumping jacks - 2 min",
+      "Flexiones - 4x10",
+      "Sentadillas con mancuerna - 3x10",
+    ],
     martes: ["Flexiones inclinadas - 4x12", "Press con pesas - 3x10"],
     miercoles: ["Sentadillas sin peso - 4x15", "Zancadas - 3x12 por pierna"],
     jueves: ["Dominadas asistidas - 3x8", "Curl con pesas - 3x12"],
