@@ -16,14 +16,13 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Home from "./pages/Home";
 import WeekView from "./pages/WeekView";
-import Machines from "./pages/Machines";
 import Progress from "./pages/Progress";
 import Nutrition from "./pages/Nutrition";
 import Timer from "./components/Timer";
 import DarkModeToggle from "./components/DarkModeToggle";
 
 // --------------------------------------------------
-// 1) Configuración de Firebase (valores reales)
+// 1) CONFIGURACIÓN DE FIREBASE: pega tus datos aquí
 // --------------------------------------------------
 const firebaseConfig = {
   apiKey: "AIzaSyC7jYi0ST5rfYvfZcb8QgeMmvvVcrKDFiU",
@@ -39,17 +38,22 @@ initializeApp(firebaseConfig);
 const auth = getAuth();
 
 // ----------------------------------------------------
-// 2) Contexto para tema (darkMode) e idioma (lang)
+// 2) Creamos un contexto para tema (darkMode) e idioma
 // ----------------------------------------------------
 export const AppContext = createContext();
 
 function App() {
   // --------------------------------------------------
   // 3) Estados principales
+  //  - user: objeto de Firebase si está logueado, o null
+  //  - darkMode: para tema claro/oscuro
+  //  - lang: “es” o “en”
+  //  - loadingIntro: controla el splash de intro.mov
+  //  - authChecked: indica que Firebase ya informó si hay usuario logueado
   // --------------------------------------------------
   const [user, setUser] = useState(null);
   const [darkMode, setDarkMode] = useState(false);
-  const [lang, setLang] = useState("es");      // “es” o “en”
+  const [lang, setLang] = useState("es");          
   const [loadingIntro, setLoadingIntro] = useState(true);
   const [authChecked, setAuthChecked] = useState(false);
 
@@ -76,9 +80,7 @@ function App() {
   // 6) Forzar el splash máximo de 3 segundos
   // --------------------------------------------------
   useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      setLoadingIntro(false);
-    }, 3000);
+    const timeoutId = setTimeout(() => setLoadingIntro(false), 3000);
     return () => clearTimeout(timeoutId);
   }, []);
 
@@ -89,13 +91,13 @@ function App() {
   const handleIntroError = () => setLoadingIntro(false);
 
   // --------------------------------------------------
-  // 8) Mientras loadingIntro === true, mostramos el splash
+  // 8) Si seguimos en “loadingIntro” (splash), lo mostramos
   // --------------------------------------------------
   if (loadingIntro) {
     return (
       <div className="flex items-center justify-center h-screen bg-black">
         <video
-          src="/assets/intro.mov"
+          src="/assets/intro.mov"    
           autoPlay
           loop
           muted
@@ -111,10 +113,81 @@ function App() {
   }
 
   // --------------------------------------------------
-  // 9) Si aún no sabemos el estado de autenticación,
-  //    mostramos un “Cargando…” hasta que onAuthStateChanged se dispare.
+  // 9) Si aún no sabemos si hay usuario (authChecked = false),
+  //    mostramos un simple “Cargando…” hasta que Firebase confirme.
   // --------------------------------------------------
   if (!authChecked) {
     return (
       <div className="flex items-center justify-center h-screen bg-white">
-        <
+        <p className="text-gray-500">Cargando…</p>
+      </div>
+    );
+  }
+
+  // --------------------------------------------------
+  // 10) Funciones para alternar tema e idioma
+  // --------------------------------------------------
+  const toggleDarkMode = () => setDarkMode(!darkMode);
+  const toggleLang = () => setLang((prev) => (prev === "es" ? "en" : "es"));
+
+  // --------------------------------------------------
+  // 11) Renderizado principal de la aplicación
+  // --------------------------------------------------
+  return (
+    <AppContext.Provider value={{ darkMode, toggleDarkMode, lang, toggleLang }}>
+      <Router>
+        {user && (
+          <nav className="p-4 bg-white dark:bg-gray-800 shadow flex justify-between items-center">
+            <div className="flex space-x-4">
+              <Link to="/" className="text-gray-700 dark:text-gray-200 hover:underline">
+                {lang === "es" ? "Hoy" : "Today"}
+              </Link>
+              <Link to="/semana" className="text-gray-700 dark:text-gray-200 hover:underline">
+                {lang === "es" ? "Semana" : "Week"}
+              </Link>
+              <Link to="/progreso" className="text-gray-700 dark:text-gray-200 hover:underline">
+                {lang === "es" ? "Progreso" : "Progress"}
+              </Link>
+              <Link to="/nutricion" className="text-gray-700 dark:text-gray-200 hover:underline">
+                {lang === "es" ? "Nutrición" : "Nutrition"}
+              </Link>
+            </div>
+            <div className="flex space-x-4">
+              <button onClick={toggleLang} className="text-gray-700 dark:text-gray-200">
+                {lang === "es" ? "EN" : "ES"}
+              </button>
+              <DarkModeToggle />
+            </div>
+          </nav>
+        )}
+
+        <Routes>
+          {/* Ruta pública: si no hay user, redirige a /login */}
+          <Route path="/" element={user ? <Home /> : <Navigate to="/login" />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/registro" element={<Register />} />
+
+          {/* Rutas protegidas: solo accesibles si user !== null */}
+          <Route
+            path="/semana"
+            element={user ? <WeekView /> : <Navigate to="/login" />}
+          />
+          <Route
+            path="/timer"
+            element={user ? <Timer /> : <Navigate to="/login" />}
+          />
+          <Route
+            path="/progreso"
+            element={user ? <Progress /> : <Navigate to="/login" />}
+          />
+          <Route
+            path="/nutricion"
+            element={user ? <Nutrition /> : <Navigate to="/login" />}
+          />
+        </Routes>
+      </Router>
+    </AppContext.Provider>
+  );
+}
+
+export default App;
