@@ -6,7 +6,7 @@ import { AppContext } from "../App";
 export default function WeekView() {
   const { lang } = useContext(AppContext);
 
-  // 1) Definimos los días en orden. Si quisieras inglés, podrías mapear aquí mismo:
+  // 1) Días de la semana (en orden), adaptados a idioma
   const dias = [
     lang === "es" ? "Domingo" : "Sunday",
     lang === "es" ? "Lunes" : "Monday",
@@ -17,102 +17,149 @@ export default function WeekView() {
     lang === "es" ? "Sábado" : "Saturday",
   ];
 
-  // 2) Definimos la rutina con nombre y archivo de vídeo (debe corresponder a public/assets/<archivo>.mov)
+  // 2) Rutina semanal: ejercicios de calistenia y mancuernas
+  //    Cada día es un array de objetos con: nombre en ES/EN, y archivo de video (.mov)
   const rutinaSemanal = {
     domingo: [
       {
         name_es: "Descanso activo",
         name_en: "Active rest",
-        file: "rest.mov"
-      }
+        file: "rest.mov",
+      },
     ],
     lunes: [
       {
         name_es: "Jumping jacks",
         name_en: "Jumping jacks",
-        file: "jumping-jacks.mov"
+        file: "jumping-jacks.mov",
       },
       {
         name_es: "Flexiones (push-ups)",
         name_en: "Push-ups",
-        file: "pushup.mov"
+        file: "pushup.mov",
       },
       {
-        name_es: "Sentadillas con barra",
-        name_en: "Barbell squats",
-        file: "bench-press.mov" // Ejemplo, reemplaza por tu video correcto
-      }
+        name_es: "Sentadilla con mancuernas (goblet squat)",
+        name_en: "Goblet squat",
+        file: "goblet-squat.mov",
+      },
     ],
     martes: [
       {
         name_es: "Flexiones inclinadas",
         name_en: "Incline push-ups",
-        file: "incline-pushup.mov"
+        file: "incline-pushup.mov",
       },
       {
-        name_es: "Press con pesas",
-        name_en: "Dumbbell press",
-        file: "bicep-curl.mov" // Ejemplo, reemplaza por tu video correcto
-      }
+        name_es: "Press con mancuernas (floor press)",
+        name_en: "Dumbbell floor press",
+        file: "dumbbell-floor-press.mov",
+      },
     ],
     miercoles: [
       {
-        name_es: "Sentadillas",
+        name_es: "Sentadillas sin peso (bodyweight squat)",
         name_en: "Bodyweight squats",
-        file: "squat.mov"
+        file: "bodyweight-squat.mov",
       },
       {
-        name_es: "Zancadas por pierna",
-        name_en: "Lunges (per leg)",
-        file: "lunge.mov"
-      }
+        name_es: "Zancadas alternas (lunges)",
+        name_en: "Lunges",
+        file: "lunge.mov",
+      },
     ],
     jueves: [
       {
         name_es: "Dominadas asistidas",
         name_en: "Assisted pull-ups",
-        file: "bench-press.mov" // Ejemplo, reemplaza por tu video correcto
+        file: "assisted-pullup.mov",
       },
       {
-        name_es: "Curl con pesas",
+        name_es: "Curl de bíceps con mancuernas",
         name_en: "Dumbbell curl",
-        file: "bicep-curl.mov"
-      }
+        file: "dumbbell-curl.mov",
+      },
     ],
     viernes: [
       {
         name_es: "20 Burpees",
         name_en: "20 Burpees",
-        file: "burpee.mov"
+        file: "burpee.mov",
       },
       {
-        name_es: "15 Sentadillas",
-        name_en: "15 Squats",
-        file: "deep-squat.mov"
+        name_es: "15 Sentadillas con salto",
+        name_en: "15 Jump Squats",
+        file: "jump-squat.mov",
       },
       {
-        name_es: "10 Flexiones",
-        name_en: "10 Push-ups",
-        file: "pushup.mov"
-      }
+        name_es: "10 Flexiones explosivas",
+        name_en: "10 Plyo Push-ups",
+        file: "plyo-pushup.mov",
+      },
     ],
     sabado: [
       {
         name_es: "Yoga / Movilidad (20 min)",
         name_en: "Yoga / Mobility (20 min)",
-        file: "yoga.mov"
-      }
-    ]
+        file: "yoga.mov",
+      },
+    ],
   };
 
-  // 3) Renderizamos un bloque por cada día de la semana
+  // 3) Equipamiento para cardio en casa
+  const equipamientoCardio = [
+    {
+      key: "treadmill",
+      name_es: "Caminadora (Treadmill)",
+      name_en: "Treadmill",
+      image: "treadmill.jpg",    // imagen aún no disponible
+      desc_es: "Úsala para trote suave, intervalos de inclinación o carrera continua.",
+      desc_en: "Use for easy jogs, incline intervals or continuous running.",
+    },
+    {
+      key: "elliptical",
+      name_es: "Elíptica (Elliptical)",
+      name_en: "Elliptical",
+      image: "elliptical.jpg",
+      desc_es: "Excelente para cardio de bajo impacto y trabajo de piernas.",
+      desc_en: "Great for low-impact cardio and leg work.",
+    },
+    {
+      key: "stepper",
+      name_es: "Escaladora / Stepper (Stair Stepper)",
+      name_en: "Stepper",
+      image: "stepper.jpg",
+      desc_es: "Simula subir escaleras: fortalece glúteos y cuádriceps.",
+      desc_en: "Simulates stair climbing: strengthens glutes and quads.",
+    },
+    {
+      key: "jump-rope",
+      name_es: "Cuerda de saltar (Jump rope)",
+      name_en: "Jump rope",
+      image: "jump-rope.jpg",
+      desc_es: "Cardio explosivo: mejora coordinación y quema calorías rápido.",
+      desc_en: "Explosive cardio: improves coordination and burns calories fast.",
+    },
+    {
+      key: "dumbbells",
+      name_es: "Mancuernas (Dumbbells)",
+      name_en: "Dumbbells",
+      image: "dumbbells.jpg",
+      desc_es: "Versátiles para press, curl, remo, sentadillas, etc.",
+      desc_en: "Versatile for press, curl, row, squats, etc.",
+    },
+  ];
+
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900 p-6">
       <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-6">
         {lang === "es" ? "Rutina semanal" : "Weekly Routine"}
       </h1>
-      {dias.map((diaNombre, index) => {
-        // Queremos acceder a la rutina en minúsculas
+
+      {/* ───────────────────────────────────────────────────────
+            4) Sección: Rutina diaria con videos (placeholder)
+          ─────────────────────────────────────────────────────── */}
+      {dias.map((diaNombre) => {
         const clave = diaNombre.toLowerCase();
         const ejercicios = rutinaSemanal[clave] || [];
 
@@ -121,6 +168,7 @@ export default function WeekView() {
             <h2 className="text-2xl font-semibold text-gray-700 dark:text-gray-200 mb-4">
               {diaNombre}
             </h2>
+
             {ejercicios.length === 0 ? (
               <p className="text-gray-600 dark:text-gray-400">
                 {lang === "es"
@@ -134,6 +182,13 @@ export default function WeekView() {
                     key={idx}
                     className="bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden shadow"
                   >
+                    {/* Aquí iría la miniatura si ya la cargas luego:
+                        <img
+                          src={`/assets/images/${ej.file.replace(".mov", ".jpg")}`}
+                          alt={lang === "es" ? ej.name_es : ej.name_en}
+                          className="w-full h-48 object-cover"
+                        />
+                    */}
                     <video
                       src={`/assets/${ej.file}`}
                       controls
@@ -145,16 +200,12 @@ export default function WeekView() {
                       <h3 className="text-lg font-medium text-gray-800 dark:text-gray-100">
                         {lang === "es" ? ej.name_es : ej.name_en}
                       </h3>
-                      {/* Aquí podrías añadir detalles como repeticiones, series o un pequeño texto explicativo */}
-                      {lang === "es" ? (
-                        <p className="text-gray-600 dark:text-gray-300 mt-1">
-                          {"4 series de 10 repeticiones"}
-                        </p>
-                      ) : (
-                        <p className="text-gray-600 dark:text-gray-300 mt-1">
-                          {"4 sets of 10 reps"}
-                        </p>
-                      )}
+                      {/* Aquí podrías añadir detalles de series/reps */}
+                      <p className="text-gray-600 dark:text-gray-300 mt-1">
+                        {lang === "es"
+                          ? "3–4 series de 8–12 repeticiones"
+                          : "3–4 sets of 8–12 reps"}
+                      </p>
                     </div>
                   </div>
                 ))}
@@ -163,6 +214,38 @@ export default function WeekView() {
           </section>
         );
       })}
+
+      {/* ───────────────────────────────────────────────────────
+            5) Sección: Equipamiento y máquinas para Cardio en casa
+          ─────────────────────────────────────────────────────── */}
+      <section className="mt-16">
+        <h2 className="text-2xl font-semibold text-gray-700 dark:text-gray-200 mb-4">
+          {lang === "es" ? "Cardio en casa" : "Home Cardio Equipment"}
+        </h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+          {equipamientoCardio.map((eq) => (
+            <div
+              key={eq.key}
+              className="bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden shadow"
+            >
+              {/* Placeholder para la imagen */}
+              <div className="w-full h-48 bg-gray-300 dark:bg-gray-700 flex items-center justify-center">
+                <span className="text-gray-500 dark:text-gray-400">
+                  {lang === "es" ? "Imagen pronto" : "Image coming soon"}
+                </span>
+              </div>
+              <div className="p-4">
+                <h3 className="text-lg font-medium text-gray-800 dark:text-gray-100">
+                  {lang === "es" ? eq.name_es : eq.name_en}
+                </h3>
+                <p className="text-gray-600 dark:text-gray-300 mt-2">
+                  {lang === "es" ? eq.desc_es : eq.desc_en}
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
     </div>
   );
 }
