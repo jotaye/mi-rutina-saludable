@@ -1,11 +1,18 @@
 // src/App.jsx
 
 import React, { useState, useEffect, createContext } from "react";
-import { BrowserRouter as Router, Routes, Route, Navigate, Link } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+  Link,
+  useLocation
+} from "react-router-dom";
 import { initializeApp } from "firebase/app";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 
-// Importa tus páginas/componentes
+// Importa aquí tus páginas y componentes
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Home from "./pages/Home";
@@ -16,7 +23,7 @@ import Timer from "./components/Timer";
 import DarkModeToggle from "./components/DarkModeToggle";
 
 // --------------------------------------------------
-// 1) CONFIGURACIÓN DE FIREBASE: pega aquí tus datos
+// 1) CONFIGURACIÓN DE FIREBASE: pega tus datos aquí
 // --------------------------------------------------
 const firebaseConfig = {
   apiKey: "AIzaSyC7jYi0ST5rfYvfZcb8QgeMmvvVcrKDFiU",
@@ -39,24 +46,34 @@ export const AppContext = createContext();
 function App() {
   // --------------------------------------------------
   // 3) Estados principales
+  //  - user: objeto de Firebase si está logueado, o null
+  //  - darkMode: para tema claro/oscuro
+  //  - lang: “es” o “en”
+  //  - loadingIntro: controla el splash de intro.mov
+  //  - authChecked: indica que Firebase ya informó si hay usuario logueado
   // --------------------------------------------------
   const [user, setUser] = useState(null);
   const [darkMode, setDarkMode] = useState(false);
-  const [lang, setLang] = useState("es");      // "es" o "en"
-  const [loading, setLoading] = useState(true); // Controla el splash/video de introducción
+  const [lang, setLang] = useState("es");          // “es” o “en”
+  const [loadingIntro, setLoadingIntro] = useState(true);
+  const [authChecked, setAuthChecked] = useState(false);
 
   // --------------------------------------------------
-  // 4) Listener de autenticación de Firebase
+  // 4) Listener de Firebase Auth
+  //    onAuthStateChanged se dispara cuando Firebase ya sabe
+  //    si hay un usuario logueado o no. Hasta que no se ejecute,
+  //    authChecked = false → no renderizamos rutas protegidas.
   // --------------------------------------------------
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, usr => {
+    const unsubscribe = onAuthStateChanged(auth, (usr) => {
       setUser(usr);
+      setAuthChecked(true);
     });
     return () => unsubscribe();
   }, []);
 
   // --------------------------------------------------
-  // 5) Si darkMode=true, añadimos clase “dark” al <html>
+  // 5) Cambiar clase “dark” en <html> si darkMode = true
   // --------------------------------------------------
   useEffect(() => {
     if (darkMode) document.documentElement.classList.add("dark");
@@ -64,35 +81,29 @@ function App() {
   }, [darkMode]);
 
   // --------------------------------------------------
-  // 6) Forzar que el splash desaparezca tras 3 segundos
+  // 6) Forzar el splash máximo de 3 segundos
   // --------------------------------------------------
   useEffect(() => {
-    const timeoutId = setTimeout(() => setLoading(false), 3000);
+    const timeoutId = setTimeout(() => {
+      setLoadingIntro(false);
+    }, 3000);
     return () => clearTimeout(timeoutId);
   }, []);
 
   // --------------------------------------------------
-  // 7) Cuando el video intro termine, ocultamos el splash
+  // 7) Handlers del video intro
   // --------------------------------------------------
-  const handleIntroEnded = () => {
-    setLoading(false);
-  };
+  const handleIntroEnded = () => setLoadingIntro(false);
+  const handleIntroError = () => setLoadingIntro(false);
 
   // --------------------------------------------------
-  // 8) Si hay error al cargar el video, también ocultamos el splash
+  // 8) Si seguimos en “loadingIntro” (splash), lo mostramos
   // --------------------------------------------------
-  const handleIntroError = () => {
-    setLoading(false);
-  };
-
-  // --------------------------------------------------
-  // 9) Mientras “loading” sea true, mostramos el splash
-  // --------------------------------------------------
-  if (loading) {
+  if (loadingIntro) {
     return (
       <div className="flex items-center justify-center h-screen bg-black">
         <video
-          src="/assets/intro.mov"       // Asegúrate que exista en public/assets/intro.mov
+          src="/assets/intro.mov"    // Debe existir en public/assets/intro.mov
           autoPlay
           loop
           muted
@@ -108,10 +119,25 @@ function App() {
   }
 
   // --------------------------------------------------
+  // 9) Si aún no sabemos si hay usuario (authChecked = false),
+  //    mostramos un simple “spinner” o nada, hasta que Firebase
+  //    confirme el estado de sesión. Esto evita redirecciones
+  //    a /login antes de que tengamos la info real de auth.
+  // --------------------------------------------------
+  if (!authChecked) {
+    return (
+      <div className="flex items-center justify-center h-screen bg-white">
+        {/* Podrías poner aquí un spinner, pero dejarlo en blanco también funciona */}
+        <p className="text-gray-500">Cargando…</p>
+      </div>
+    );
+  }
+
+  // --------------------------------------------------
   // 10) Funciones para alternar tema e idioma
   // --------------------------------------------------
   const toggleDarkMode = () => setDarkMode(!darkMode);
-  const toggleLang = () => setLang(prev => (prev === "es" ? "en" : "es"));
+  const toggleLang = () => setLang((prev) => (prev === "es" ? "en" : "es"));
 
   // --------------------------------------------------
   // 11) Renderizado principal de la aplicación
@@ -119,6 +145,10 @@ function App() {
   return (
     <AppContext.Provider value={{ darkMode, toggleDarkMode, lang, toggleLang }}>
       <Router>
+        {/*
+          – Si user !== null (está autenticado), mostramos navbar.
+          – Si user === null, el navbar no aparece.
+        */}
         {user && (
           <nav className="p-4 bg-white dark:bg-gray-800 shadow flex justify-between items-center">
             <div className="flex space-x-4">
@@ -145,10 +175,14 @@ function App() {
         )}
 
         <Routes>
+          {/* – Ruta raíz: si ya hay user, cargamos <Home />; si no, redirigimos a /login */}
           <Route path="/" element={user ? <Home /> : <Navigate to="/login" />} />
+
+          {/* – Rutas públicas (Login / Registro) */}
           <Route path="/login" element={<Login />} />
           <Route path="/registro" element={<Register />} />
 
+          {/* – Rutas protegidas: solo si user !== null */}
           <Route
             path="/semana"
             element={user ? <WeekView /> : <Navigate to="/login" />}
