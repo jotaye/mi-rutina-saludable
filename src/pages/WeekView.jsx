@@ -1,12 +1,9 @@
 // src/pages/WeekView.jsx
-
-import React, { useContext, useState } from "react";
+import React, { useContext } from "react";
 import { AppContext } from "../App";
 
 export default function WeekView() {
   const { lang } = useContext(AppContext);
-
-  // Si deseas más lógica (niveles, videos, etc.) puedes expandir este ejemplo básico
   return (
     <div className="min-h-screen p-6 bg-white dark:bg-gray-900">
       <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-4">
@@ -17,7 +14,6 @@ export default function WeekView() {
           ? "Aquí verás todos los ejercicios de la semana según tu nivel."
           : "Here you will see all the week’s exercises based on your level."}
       </p>
-      {/* A partir de aquí, agrega tu cuadrícula de videos e instrucciones */}
     </div>
   );
 }
