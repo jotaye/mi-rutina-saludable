@@ -31,9 +31,7 @@ export default function Register() {
           {lang === "es" ? "Crear cuenta" : "Sign Up"}
         </h2>
 
-        {errorMsg && (
-          <p className="text-red-500 text-sm mb-2">{errorMsg}</p>
-        )}
+        {errorMsg && <p className="text-red-500 text-sm mb-2">{errorMsg}</p>}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
@@ -70,10 +68,7 @@ export default function Register() {
 
         <p className="text-center text-sm text-gray-500 mt-4">
           {lang === "es" ? "¿Ya tienes cuenta?" : "Already have an account?"}{" "}
-          <a
-            href="/login"
-            className="text-blue-600 hover:underline"
-          >
+          <a href="/login" className="text-blue-600 hover:underline">
             {lang === "es" ? "Inicia sesión" : "Log In"}
           </a>
         </p>
