@@ -8,13 +8,8 @@ export default function Progress() {
   const { lang } = useContext(AppContext);
   const { progressData, getDayProgress } = useContext(ProgressContext);
 
-  // 1) Fecha actual en “YYYY-MM-DD”
   const todayStr = new Date().toISOString().slice(0, 10);
-
-  // 2) Progreso de hoy (puede ser un objeto vacío si no hay registros)
   const hoyProgress = getDayProgress(todayStr);
-
-  // 3) Sumar segundos y calorías de hoy
   const totalSegHoy = Object.values(hoyProgress).reduce(
     (acc, cur) => acc + cur.segundosAcumulados,
     0
@@ -24,16 +19,13 @@ export default function Progress() {
     0
   );
 
-  // 4) Histórico de los últimos 7 días (incluyendo hoy)
   const diasSemana = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
   const hoyDate = new Date();
-
   const historicoSemanal = [];
   for (let i = 6; i >= 0; i--) {
     const fecha = new Date(hoyDate);
     fecha.setDate(hoyDate.getDate() - i);
     const dateStr = fecha.toISOString().slice(0, 10);
-
     const dayData = progressData[dateStr] || {};
     const totalSeg = Object.values(dayData).reduce(
       (acc, cur) => acc + cur.segundosAcumulados,
@@ -43,9 +35,7 @@ export default function Progress() {
       (acc, cur) => acc + cur.caloríasAcumuladas,
       0
     );
-
     const dayName = diasSemana[fecha.getDay()].slice(0, 3);
-
     historicoSemanal.push({
       dia: dayName,
       minutos: Math.floor(totalSeg / 60),
@@ -59,7 +49,6 @@ export default function Progress() {
         {lang === "es" ? "Progreso Diario" : "Daily Progress"}
       </h1>
 
-      {/* 1) Resumen de hoy */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-12">
         <div className="bg-gray-100 dark:bg-gray-800 rounded-lg p-4 shadow">
           <h2 className="text-xl font-semibold text-gray-700 dark:text-gray-200 mb-2">
@@ -78,14 +67,11 @@ export default function Progress() {
           </h2>
           <p className="text-3xl font-bold text-red-600 dark:text-red-400">
             {Math.round(totalCalHoy)}{" "}
-            <span className="text-base text-gray-600 dark:text-gray-300">
-              kcal
-            </span>
+            <span className="text-base text-gray-600 dark:text-gray-300">kcal</span>
           </p>
         </div>
       </div>
 
-      {/* 2) Histórico semanal */}
       <div>
         <h2 className="text-2xl font-semibold text-gray-700 dark:text-gray-200 mb-4">
           {lang === "es" ? "Histórico Semanal" : "Weekly History"}
@@ -109,17 +95,10 @@ export default function Progress() {
             {historicoSemanal.map((dia, idx) => (
               <tr
                 key={idx}
-                className={idx % 2 === 0
-                  ? "bg-white dark:bg-gray-900"
-                  : "bg-gray-50 dark:bg-gray-800"
-                }
+                className={idx % 2 === 0 ? "bg-white dark:bg-gray-900" : "bg-gray-50 dark:bg-gray-800"}
               >
-                <td className="px-4 py-2 text-gray-700 dark:text-gray-200">
-                  {idx + 1}
-                </td>
-                <td className="px-4 py-2 text-gray-700 dark:text-gray-200">
-                  {dia.dia}
-                </td>
+                <td className="px-4 py-2 text-gray-700 dark:text-gray-200">{idx + 1}</td>
+                <td className="px-4 py-2 text-gray-700 dark:text-gray-200">{dia.dia}</td>
                 <td className="px-4 py-2 text-gray-700 dark:text-gray-200">
                   {dia.minutos}{" "}
                   <span className="text-gray-500 dark:text-gray-400 text-sm">min</span>
