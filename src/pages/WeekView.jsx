@@ -7,7 +7,7 @@ import Timer from "../components/Timer";
 export default function WeekView() {
   const { lang } = useContext(AppContext);
 
-  // 1) Días de la semana adaptados a idioma
+  // 1) Días de la semana en el idioma actual
   const dias = [
     lang === "es" ? "Domingo" : "Sunday",
     lang === "es" ? "Lunes" : "Monday",
@@ -18,16 +18,15 @@ export default function WeekView() {
     lang === "es" ? "Sábado" : "Saturday",
   ];
 
-  // 2) Rutina semanal (incluyendo duración en segundos y caloriesPerMin)
-  //    Puedes ajustar duration/calPerMin a tus valores ideales.
+  // 2) Rutina semanal: cada ejercicio con file, duración (segundos) y kcal/minuto
   const rutinaSemanal = {
     domingo: [
       {
         name_es: "Descanso activo",
         name_en: "Active rest",
         file: "rest.mov",
-        duration: 1200,      // 20 minutos = 20 * 60
-        calPerMin: 3.5,      // por ejemplo 3.5 kcal/min al caminar
+        duration: 1200,  // 20 min
+        calPerMin: 3.5,  // 3.5 kcal/min al caminar
       },
     ],
     lunes: [
@@ -35,22 +34,22 @@ export default function WeekView() {
         name_es: "Jumping jacks",
         name_en: "Jumping jacks",
         file: "jumping-jacks.mov",
-        duration: 60,        // 1 minuto
-        calPerMin: 8,        // 8 kcal por minuto aprox.
+        duration: 60,    // 1 min
+        calPerMin: 8,
       },
       {
         name_es: "Flexiones (push-ups)",
         name_en: "Push-ups",
         file: "pushup.mov",
-        duration: 45,        // 45 segundos
-        calPerMin: 7.5,      // 7.5 kcal/min aprox.
+        duration: 45,
+        calPerMin: 7.5,
       },
       {
         name_es: "Sentadilla con mancuerna (goblet squat)",
         name_en: "Goblet squat",
         file: "goblet-squat.mov",
-        duration: 60,        // 1 minuto
-        calPerMin: 6,        // 6 kcal/min aprox.
+        duration: 60,
+        calPerMin: 6,
       },
     ],
     martes: [
@@ -106,7 +105,7 @@ export default function WeekView() {
         name_es: "20 Burpees",
         name_en: "20 Burpees",
         file: "burpee.mov",
-        duration: 90,       // 1:30 minutos
+        duration: 90,
         calPerMin: 12,
       },
       {
@@ -130,12 +129,12 @@ export default function WeekView() {
         name_en: "Yoga / Mobility (20 min)",
         file: "yoga.mov",
         duration: 1200,
-        calPerMin: 3,        // 3 kcal/min aprox. en yoga suave
+        calPerMin: 3,
       },
     ],
   };
 
-  // 3) Plan de cardio semanal con Gym Bike incluido
+  // 3) Plan de cardio semanal (texto + Gym Bike incluida)
   const cardioSemanal = {
     domingo: [
       {
@@ -243,7 +242,7 @@ export default function WeekView() {
     ],
   };
 
-  // 4) Equipamiento para cardio (incluye Gym Bike)
+  // 4) Equipamiento / Máquinas (incluye Gym Bike)
   const equipamientoCardio = [
     {
       key: "treadmill",
@@ -295,21 +294,17 @@ export default function WeekView() {
     },
   ];
 
-  // 5) Fecha de hoy en formato “YYYY-MM-DD” para registrar en el contexto
+  // 5) Fecha de hoy en “YYYY-MM-DD”
   const todayStr = new Date().toISOString().slice(0, 10);
 
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900 p-6">
-      {/* ──────────────────────────────────────────────────────────────────
-            1) Título General
-         ────────────────────────────────────────────────────────────────── */}
+      {/* 1) Título General */}
       <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-6">
         {lang === "es" ? "Rutina Semanal" : "Weekly Routine"}
       </h1>
 
-      {/* ──────────────────────────────────────────────────────────────────
-            2) Sección: Rutina Diaria con Videos y Temporizadores
-         ────────────────────────────────────────────────────────────────── */}
+      {/* 2) Sección: Rutina Diaria con Videos y Temporizadores */}
       {dias.map((diaNombre) => {
         const clave = diaNombre.toLowerCase();
         const ejercicios = rutinaSemanal[clave] || [];
@@ -333,14 +328,14 @@ export default function WeekView() {
                     key={idx}
                     className="bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden shadow flex flex-col"
                   >
-                    {/* 2.a) Miniatura (placeholder) – reemplaza por <img> cuando tengas la foto */}
+                    {/* 2.a) Miniatura (placeholder) – luego reemplaza por <img> */}
                     <div className="w-full h-48 bg-gray-300 dark:bg-gray-700 flex items-center justify-center">
                       <span className="text-gray-500 dark:text-gray-400">
                         {lang === "es" ? "Video pronto" : "Video coming soon"}
                       </span>
                     </div>
 
-                    {/* 2.b) Video real del ejercicio */}
+                    {/* 2.b) Video real */}
                     <video
                       src={`/assets/${ej.file}`}
                       controls
@@ -349,7 +344,7 @@ export default function WeekView() {
                       Tu navegador no soporta reproducir este video.
                     </video>
 
-                    {/* 2.c) Información del ejercicio + Temporizador */}
+                    {/* 2.c) Info + Temporizador */}
                     <div className="p-4 flex flex-col flex-grow">
                       <h3 className="text-lg font-medium text-gray-800 dark:text-gray-100 mb-2">
                         {lang === "es" ? ej.name_es : ej.name_en}
@@ -360,10 +355,9 @@ export default function WeekView() {
                           : "3–4 sets of 8–12 reps"}
                       </p>
 
-                      {/* 2.d) Temporizador */}
                       <div className="mt-auto">
                         <Timer
-                          duration={ej.duration}              // segundos
+                          duration={ej.duration}
                           ejercicio={lang === "es" ? ej.name_es : ej.name_en}
                           caloriesPerMin={ej.calPerMin}
                           dateStr={todayStr}
@@ -378,9 +372,7 @@ export default function WeekView() {
         );
       })}
 
-      {/* ──────────────────────────────────────────────────────────────────
-            3) Sección: Plan de Cardio Semanal (Tiempos de ejercicio y descanso)
-         ────────────────────────────────────────────────────────────────── */}
+      {/* 3) Plan de Cardio Semanal */}
       <section className="mt-16">
         <h2 className="text-2xl font-semibold text-gray-700 dark:text-gray-200 mb-4">
           {lang === "es" ? "Plan de Cardio Semanal" : "Weekly Cardio Plan"}
@@ -447,9 +439,7 @@ export default function WeekView() {
         })}
       </section>
 
-      {/* ──────────────────────────────────────────────────────────────────
-            4) Sección: Equipamiento / Máquinas para Cardio en Casa
-         ────────────────────────────────────────────────────────────────── */}
+      {/* 4) Equipamiento / Máquinas */}
       <section className="mt-16">
         <h2 className="text-2xl font-semibold text-gray-700 dark:text-gray-200 mb-4">
           {lang === "es" ? "Equipamiento / Máquinas" : "Equipment / Machines"}
@@ -460,13 +450,12 @@ export default function WeekView() {
               key={eq.key}
               className="bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden shadow"
             >
-              {/* 4.a) Miniatura placeholder – reemplaza por <img> cuando tengas la foto */}
+              {/* Miniatura placeholder – luego reemplaza por <img> */}
               <div className="w-full h-48 bg-gray-300 dark:bg-gray-700 flex items-center justify-center">
                 <span className="text-gray-500 dark:text-gray-400">
                   {lang === "es" ? "Imagen pronto" : "Image coming soon"}
                 </span>
               </div>
-              {/* 4.b) Descripción */}
               <div className="p-4">
                 <h3 className="text-lg font-medium text-gray-800 dark:text-gray-100 mb-2">
                   {lang === "es" ? eq.name_es : eq.name_en}
