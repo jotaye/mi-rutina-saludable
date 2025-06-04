@@ -2,6 +2,7 @@
 
 import React, { useContext } from "react";
 import { AppContext } from "../App";
+import Timer from "../components/Timer";
 
 export default function WeekView() {
   const { lang } = useContext(AppContext);
@@ -17,13 +18,16 @@ export default function WeekView() {
     lang === "es" ? "Sábado" : "Saturday",
   ];
 
-  // 2) Rutina semanal (calistenia + mancuernas)
+  // 2) Rutina semanal (incluyendo duración en segundos y caloriesPerMin)
+  //    Puedes ajustar duration/calPerMin a tus valores ideales.
   const rutinaSemanal = {
     domingo: [
       {
         name_es: "Descanso activo",
         name_en: "Active rest",
         file: "rest.mov",
+        duration: 1200,      // 20 minutos = 20 * 60
+        calPerMin: 3.5,      // por ejemplo 3.5 kcal/min al caminar
       },
     ],
     lunes: [
@@ -31,16 +35,22 @@ export default function WeekView() {
         name_es: "Jumping jacks",
         name_en: "Jumping jacks",
         file: "jumping-jacks.mov",
+        duration: 60,        // 1 minuto
+        calPerMin: 8,        // 8 kcal por minuto aprox.
       },
       {
         name_es: "Flexiones (push-ups)",
         name_en: "Push-ups",
         file: "pushup.mov",
+        duration: 45,        // 45 segundos
+        calPerMin: 7.5,      // 7.5 kcal/min aprox.
       },
       {
         name_es: "Sentadilla con mancuerna (goblet squat)",
         name_en: "Goblet squat",
         file: "goblet-squat.mov",
+        duration: 60,        // 1 minuto
+        calPerMin: 6,        // 6 kcal/min aprox.
       },
     ],
     martes: [
@@ -48,11 +58,15 @@ export default function WeekView() {
         name_es: "Flexiones inclinadas",
         name_en: "Incline push-ups",
         file: "incline-pushup.mov",
+        duration: 45,
+        calPerMin: 7,
       },
       {
         name_es: "Press con mancuerna en suelo (floor press)",
         name_en: "Dumbbell floor press",
         file: "dumbbell-floor-press.mov",
+        duration: 60,
+        calPerMin: 5.5,
       },
     ],
     miercoles: [
@@ -60,11 +74,15 @@ export default function WeekView() {
         name_es: "Sentadillas sin peso (bodyweight squat)",
         name_en: "Bodyweight squats",
         file: "bodyweight-squat.mov",
+        duration: 60,
+        calPerMin: 5,
       },
       {
         name_es: "Zancadas alternas (lunges)",
         name_en: "Lunges",
         file: "lunge.mov",
+        duration: 60,
+        calPerMin: 5,
       },
     ],
     jueves: [
@@ -72,11 +90,15 @@ export default function WeekView() {
         name_es: "Dominadas asistidas",
         name_en: "Assisted pull-ups",
         file: "assisted-pullup.mov",
+        duration: 45,
+        calPerMin: 8,
       },
       {
         name_es: "Curl de bíceps con mancuerna",
         name_en: "Dumbbell curl",
         file: "dumbbell-curl.mov",
+        duration: 60,
+        calPerMin: 4.5,
       },
     ],
     viernes: [
@@ -84,16 +106,22 @@ export default function WeekView() {
         name_es: "20 Burpees",
         name_en: "20 Burpees",
         file: "burpee.mov",
+        duration: 90,       // 1:30 minutos
+        calPerMin: 12,
       },
       {
         name_es: "15 Sentadillas con salto",
         name_en: "15 Jump Squats",
         file: "jump-squat.mov",
+        duration: 60,
+        calPerMin: 10,
       },
       {
         name_es: "10 Flexiones explosivas",
         name_en: "10 Plyo Push-ups",
         file: "plyo-pushup.mov",
+        duration: 60,
+        calPerMin: 11,
       },
     ],
     sabado: [
@@ -101,12 +129,13 @@ export default function WeekView() {
         name_es: "Yoga / Movilidad (20 min)",
         name_en: "Yoga / Mobility (20 min)",
         file: "yoga.mov",
+        duration: 1200,
+        calPerMin: 3,        // 3 kcal/min aprox. en yoga suave
       },
     ],
   };
 
-  // 3) Plan de cardio semanal con tiempos de ejercicio y descanso
-  //    Ahora incluye Gym Bike (bicicleta estática)
+  // 3) Plan de cardio semanal con Gym Bike incluido
   const cardioSemanal = {
     domingo: [
       {
@@ -214,13 +243,13 @@ export default function WeekView() {
     ],
   };
 
-  // 4) Equipamiento para cardio en casa (incluimos Gym Bike)
+  // 4) Equipamiento para cardio (incluye Gym Bike)
   const equipamientoCardio = [
     {
       key: "treadmill",
       name_es: "Caminadora (Treadmill)",
       name_en: "Treadmill",
-      image: "treadmill.jpg", // placeholder
+      image: "treadmill.jpg",
       desc_es: "Úsala para trote suave, intervalos de inclinación o carrera continua.",
       desc_en: "Use for easy jogs, incline intervals or continuous running.",
     },
@@ -260,11 +289,14 @@ export default function WeekView() {
       key: "gym-bike",
       name_es: "Bicicleta estática (Gym Bike)",
       name_en: "Stationary Bike",
-      image: "stationary-bike.jpg", // placeholder
+      image: "stationary-bike.jpg",
       desc_es: "Ideal para cardio de bajo impacto: ajusta resistencia y ritmo.",
       desc_en: "Ideal for low-impact cardio: adjust resistance and pace.",
     },
   ];
+
+  // 5) Fecha de hoy en formato “YYYY-MM-DD” para registrar en el contexto
+  const todayStr = new Date().toISOString().slice(0, 10);
 
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900 p-6">
@@ -276,7 +308,7 @@ export default function WeekView() {
       </h1>
 
       {/* ──────────────────────────────────────────────────────────────────
-            2) Sección: Rutina Diaria con Videos (Calistenia)
+            2) Sección: Rutina Diaria con Videos y Temporizadores
          ────────────────────────────────────────────────────────────────── */}
       {dias.map((diaNombre) => {
         const clave = diaNombre.toLowerCase();
@@ -299,15 +331,16 @@ export default function WeekView() {
                 {ejercicios.map((ej, idx) => (
                   <div
                     key={idx}
-                    className="bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden shadow"
+                    className="bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden shadow flex flex-col"
                   >
-                    {/* Miniatura (placeholder) – luego reemplaza por <img> */}
+                    {/* 2.a) Miniatura (placeholder) – reemplaza por <img> cuando tengas la foto */}
                     <div className="w-full h-48 bg-gray-300 dark:bg-gray-700 flex items-center justify-center">
                       <span className="text-gray-500 dark:text-gray-400">
                         {lang === "es" ? "Video pronto" : "Video coming soon"}
                       </span>
                     </div>
-                    {/* Video real */}
+
+                    {/* 2.b) Video real del ejercicio */}
                     <video
                       src={`/assets/${ej.file}`}
                       controls
@@ -315,15 +348,27 @@ export default function WeekView() {
                     >
                       Tu navegador no soporta reproducir este video.
                     </video>
-                    <div className="p-4">
-                      <h3 className="text-lg font-medium text-gray-800 dark:text-gray-100">
+
+                    {/* 2.c) Información del ejercicio + Temporizador */}
+                    <div className="p-4 flex flex-col flex-grow">
+                      <h3 className="text-lg font-medium text-gray-800 dark:text-gray-100 mb-2">
                         {lang === "es" ? ej.name_es : ej.name_en}
                       </h3>
-                      <p className="text-gray-600 dark:text-gray-300 mt-1">
+                      <p className="text-gray-600 dark:text-gray-300 mb-4">
                         {lang === "es"
                           ? "3–4 series de 8–12 repeticiones"
                           : "3–4 sets of 8–12 reps"}
                       </p>
+
+                      {/* 2.d) Temporizador */}
+                      <div className="mt-auto">
+                        <Timer
+                          duration={ej.duration}              // segundos
+                          ejercicio={lang === "es" ? ej.name_es : ej.name_en}
+                          caloriesPerMin={ej.calPerMin}
+                          dateStr={todayStr}
+                        />
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -415,17 +460,18 @@ export default function WeekView() {
               key={eq.key}
               className="bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden shadow"
             >
-              {/* Placeholder de imagen */}
+              {/* 4.a) Miniatura placeholder – reemplaza por <img> cuando tengas la foto */}
               <div className="w-full h-48 bg-gray-300 dark:bg-gray-700 flex items-center justify-center">
                 <span className="text-gray-500 dark:text-gray-400">
                   {lang === "es" ? "Imagen pronto" : "Image coming soon"}
                 </span>
               </div>
+              {/* 4.b) Descripción */}
               <div className="p-4">
-                <h3 className="text-lg font-medium text-gray-800 dark:text-gray-100">
+                <h3 className="text-lg font-medium text-gray-800 dark:text-gray-100 mb-2">
                   {lang === "es" ? eq.name_es : eq.name_en}
                 </h3>
-                <p className="text-gray-600 dark:text-gray-300 mt-2">
+                <p className="text-gray-600 dark:text-gray-300">
                   {lang === "es" ? eq.desc_es : eq.desc_en}
                 </p>
               </div>
