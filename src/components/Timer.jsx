@@ -4,14 +4,7 @@ import React, { useState, useEffect, useRef, useContext } from "react";
 import { ProgressContext } from "../context/ProgressContext";
 import { AppContext } from "../App";
 
-export default function Timer({
-  duration,
-  ejercicio,
-  caloriesPerMin,
-  dateStr,
-  onTimerStart,
-  className = "",
-}) {
+export default function Timer({ duration, ejercicio, caloriesPerMin, dateStr }) {
   const { addProgress } = useContext(ProgressContext);
   const { lang } = useContext(AppContext);
 
@@ -22,7 +15,6 @@ export default function Timer({
   const intervalRef = useRef(null);
   const audioRef = useRef(null);
 
-  // Formatea segundos a MM:SS
   const formatTime = (secs) => {
     const minutos = Math.floor(secs / 60);
     const segundos = secs % 60;
@@ -31,7 +23,6 @@ export default function Timer({
     return `${mm}:${ss}`;
   };
 
-  // Corre el temporizador hacia atrás
   useEffect(() => {
     if (activo && segundosRestantes > 0) {
       intervalRef.current = setInterval(() => {
@@ -44,29 +35,29 @@ export default function Timer({
     return () => clearInterval(intervalRef.current);
   }, [activo]);
 
-  // Cuando llega a cero, suena y registra progreso
   useEffect(() => {
     if (segundosRestantes === 0 && activo) {
       clearInterval(intervalRef.current);
       setActivo(false);
       setCompletado(true);
-
-      // Suena la alarma
       if (audioRef.current) {
         audioRef.current.currentTime = 0;
         audioRef.current.play();
       }
-
-      // Calcula calorías quemadas: caloriesPerMin * (duration / 60)
       const durEnMin = duration / 60;
       const caloriasQuemadas = parseFloat((caloriesPerMin * durEnMin).toFixed(1));
-
-      // Añade el progreso al contexto
       addProgress(dateStr, ejercicio, duration, caloriasQuemadas);
     }
-  }, [segundosRestantes, activo, duration, caloriesPerMin, ejercicio, dateStr, addProgress]);
+  }, [
+    segundosRestantes,
+    activo,
+    duration,
+    caloriesPerMin,
+    ejercicio,
+    dateStr,
+    addProgress,
+  ]);
 
-  // Iniciar o reiniciar
   const handleStart = () => {
     if (completado) {
       setSegundosRestantes(duration);
@@ -74,20 +65,16 @@ export default function Timer({
       setActivo(false);
     } else {
       setActivo(true);
-      onTimerStart && onTimerStart();
     }
   };
 
   return (
-    <div className={`flex flex-col items-center ${className}`}>
-      {/* Muestra MM:SS */}
+    <div className="flex flex-col items-center mt-4">
       <div className="mb-2">
         <span className="text-xl font-mono text-gray-800 dark:text-gray-100">
           {formatTime(segundosRestantes)}
         </span>
       </div>
-
-      {/* Botón Iniciar / Reiniciar */}
       <button
         onClick={handleStart}
         disabled={activo}
@@ -109,8 +96,6 @@ export default function Timer({
           ? "Iniciar"
           : "Start"}
       </button>
-
-      {/* Audio para el pitido cuando finaliza */}
       <audio ref={audioRef}>
         <source
           src="https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg"
