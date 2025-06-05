@@ -26,7 +26,10 @@ export default function UserProfile() {
   return (
     <div className="p-6 max-w-md mx-auto">
       <h1 className="text-3xl font-bold mb-4">Perfil del usuario</h1>
-      <form onSubmit={handleSubmit} className="space-y-4 bg-white p-4 rounded-lg shadow-md">
+      <form
+        onSubmit={handleSubmit}
+        className="space-y-4 bg-white p-4 rounded-lg shadow-md"
+      >
         <div>
           <label className="block text-gray-700">Nombre completo</label>
           <input
@@ -81,6 +84,19 @@ export default function UserProfile() {
           >
             <option value="1">Tipo 1</option>
             <option value="2">Tipo 2</option>
+          </select>
+        </div>
+        <div>
+          <label className="block text-gray-700">Nivel de ejercicio</label>
+          <select
+            name="nivel"
+            value={formState.nivel}
+            onChange={handleChange}
+            className="w-full border px-3 py-2 rounded-md"
+          >
+            <option value="principiante">Principiante</option>
+            <option value="intermedio">Intermedio</option>
+            <option value="avanzado">Avanzado</option>
           </select>
         </div>
         <button
