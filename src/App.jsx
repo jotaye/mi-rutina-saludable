@@ -94,7 +94,7 @@ function App() {
       <ProgressProvider>
         <AppContext.Provider value={{ darkMode, toggleDarkMode, lang, toggleLang }}>
           <Router>
-            {user && <Navbar lang={lang} />}
+            {user && <Navbar lang={lang} toggleLang={toggleLang} />}
             <Routes>
               <Route path="/perfil" element={user ? <UserProfile /> : <Navigate to="/login" />} />
               <Route path="/" element={user ? <Home /> : <Navigate to="/login" />} />
@@ -111,7 +111,7 @@ function App() {
   );
 }
 
-function Navbar({ lang }) {
+function Navbar({ lang, toggleLang }) {
   const location = useLocation();
 
   const links = [
@@ -135,8 +135,8 @@ function Navbar({ lang }) {
                   location.pathname === link.to
                     ? "text-blue-600 border-b-2 border-blue-600"
                     : "text-gray-700 hover:text-blue-600"
-                }  
-                  dark:text-gray-300 dark:hover:text-blue-400 transition`}
+                }
+                   dark:text-gray-300 dark:hover:text-blue-400 transition`}
               >
                 {link.label}
               </Link>
@@ -153,9 +153,7 @@ function Navbar({ lang }) {
               {lang === "es" ? "Cerrar sesión" : "Log Out"}
             </button>
             <button
-              onClick={() => {
-                toggleLang();
-              }}
+              onClick={toggleLang}
               className="text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 transition"
             >
               {lang === "es" ? "EN" : "ES"}
