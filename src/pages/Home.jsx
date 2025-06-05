@@ -4,7 +4,7 @@ import { AppContext } from "../App";
 import { UserContext } from "../context/UserContext";
 import Timer from "../components/Timer";
 
-// Mapea cada día a ejercicios (video + explicación)
+// Rutina semanal con video/explicación y valores de calorías estimadas
 const rutinaSemanal = {
   lunes: [
     {
@@ -16,6 +16,7 @@ const rutinaSemanal = {
         "Mantén espalda recta y mira al frente.",
         "Sube empujando con talones.",
       ],
+      calorias: 40, // Calorías estimadas en 1 min
     },
     {
       nombre: "Caminadora (en casa)",
@@ -26,6 +27,7 @@ const rutinaSemanal = {
         "Aumenta a 5-6 km/h para ritmo moderado.",
         "Mantén 10 min y baja la velocidad para enfriar.",
       ],
+      calorias: 100, // Estimado por 10 min
     },
   ],
   martes: [
@@ -38,6 +40,7 @@ const rutinaSemanal = {
         "Empuja hasta extender brazos.",
         "Respira rítmicamente.",
       ],
+      calorias: 50,
     },
     {
       nombre: "Bicicleta estática (Gym Bike)",
@@ -47,6 +50,7 @@ const rutinaSemanal = {
         "Calienta 3-5 min, luego 10 min a intensidad media.",
         "Enfriar 2-3 min.",
       ],
+      calorias: 80,
     },
   ],
   miércoles: [
@@ -59,6 +63,7 @@ const rutinaSemanal = {
         "Tira con la espalda hasta que la barbilla sobrepase la barra.",
         "Baja despacio hasta brazos extendidos.",
       ],
+      calorias: 60,
     },
     {
       nombre: "Curl de bíceps con mancuernas",
@@ -68,6 +73,7 @@ const rutinaSemanal = {
         "Flexiona codos manteniendo bíceps contraídos y muñecas rectas.",
         "Sube hasta el hombro y baja lentamente.",
       ],
+      calorias: 30,
     },
   ],
   jueves: [
@@ -80,6 +86,7 @@ const rutinaSemanal = {
         "Empuja con la pierna delantera para regresar.",
         "Alterna con la otra pierna.",
       ],
+      calorias: 45,
     },
     {
       nombre: "Curl con banda elástica",
@@ -89,6 +96,7 @@ const rutinaSemanal = {
         "Flexiona codos subiendo la banda hasta el hombro.",
         "Baja controladamente.",
       ],
+      calorias: 25,
     },
   ],
   viernes: [
@@ -101,6 +109,7 @@ const rutinaSemanal = {
         "Realiza una flexión de brazos.",
         "Regresa pies a cuclillas y salta con brazos arriba.",
       ],
+      calorias: 70,
     },
     {
       nombre: "Saltos con cuerda",
@@ -110,6 +119,7 @@ const rutinaSemanal = {
         "Salta con ambos pies a la vez, rodillas ligeramente flexionadas.",
         "Mantén ritmo constante por 1 minuto.",
       ],
+      calorias: 60,
     },
   ],
   sábado: [
@@ -121,6 +131,7 @@ const rutinaSemanal = {
         "Mantén cada postura 20-30 seg.",
         "Focaliza en respiración profunda.",
       ],
+      calorias: 20,
     },
   ],
   domingo: [
@@ -131,6 +142,7 @@ const rutinaSemanal = {
         "Camina 15–20 minutos a paso suave.",
         "Realiza estiramientos dinámicos ligeros (piernas, espalda).",
       ],
+      calorias: 15,
     },
   ],
 };
@@ -138,8 +150,9 @@ const rutinaSemanal = {
 export default function Home() {
   const { lang } = useContext(AppContext);
   const { profile } = useContext(UserContext);
-  const todayIndex = new Date().getDay(); // 0=domingo, 1=lunes...
-  const dias = ["domingo","lunes","martes","miércoles","jueves","viernes","sábado"];
+
+  const todayIndex = new Date().getDay(); // 0 = domingo, 1 = lunes...
+  const dias = ["domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado"];
   const diaHoy = dias[todayIndex];
   const ejerciciosHoy = rutinaSemanal[diaHoy] || [];
 
@@ -179,14 +192,25 @@ export default function Home() {
                   <li key={i}>{paso}</li>
                 ))}
               </ol>
-              {/* Temporizador: 1 minuto por ejercicio */}
+              {/* Temporizador automático: 60 segundos por ejercicio */}
               <div className="flex items-center space-x-4">
                 <Timer
                   durationSeconds={60}
-                  onFinish={() => alert(`${ej.nombre} completo!`)}
+                  nombreEjercicio={ej.nombre}
+                  caloriasEstimadas={ej.calorias}
+                  diaClave={diaHoy}
+                  onFinish={() =>
+                    alert(
+                      lang === "es"
+                        ? `${ej.nombre} completado y registrado automáticamente.`
+                        : `${ej.nombre} completed and logged automatically.`
+                    )
+                  }
                 />
                 <p className="text-sm text-gray-500">
-                  {lang === "es" ? "Duración sugerida: 60 s" : "Suggested: 60 s"}
+                  {lang === "es"
+                    ? `Calorías estimadas: ${ej.calorias} kcal`
+                    : `Est. Calories: ${ej.calorias} kcal`}
                 </p>
               </div>
             </div>
@@ -203,7 +227,6 @@ export default function Home() {
         </a>
       </div>
 
-      {/* Si no hay perfil, sugerir crear perfil */}
       {!profile.nombre && (
         <div className="mt-8 bg-yellow-100 p-4 rounded-md border-l-4 border-yellow-500">
           <p className="text-yellow-800">
