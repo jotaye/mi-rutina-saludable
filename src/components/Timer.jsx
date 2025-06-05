@@ -1,115 +1,73 @@
 // src/components/Timer.jsx
-import React, { useState, useEffect, useRef, useContext } from "react";
-import { ProgressContext } from "../context/ProgressContext";
-import { AppContext } from "../App";
+import React, { useState, useEffect, useRef } from "react";
 
-export default function Timer({ duration, ejercicio, caloriesPerMin, dateStr }) {
-  const { addProgress } = useContext(ProgressContext);
-  const { lang } = useContext(AppContext);
-
-  const [segundosRestantes, setSegundosRestantes] = useState(duration);
-  const [activo, setActivo] = useState(false);
-  const [completado, setCompletado] = useState(false);
-
+export default function Timer({ durationSeconds = 30, onFinish }) {
+  const [secondsLeft, setSecondsLeft] = useState(durationSeconds);
+  const [running, setRunning] = useState(false);
   const intervalRef = useRef(null);
   const audioRef = useRef(null);
 
-  const formatTime = (secs) => {
-    const minutos = Math.floor(secs / 60);
-    const segundos = secs % 60;
-    const mm = String(minutos).padStart(2, "0");
-    const ss = String(segundos).padStart(2, "0");
-    return `${mm}:${ss}`;
-  };
-
-  // Inicia o detiene el temporizador
   useEffect(() => {
-    if (activo && segundosRestantes > 0) {
+    audioRef.current = new Audio(
+      "/assets/alarm.mp3"
+    ); // Debes colocar un archivo alarm.mp3 en /public/assets/
+  }, []);
+
+  useEffect(() => {
+    if (running && secondsLeft > 0) {
       intervalRef.current = setInterval(() => {
-        setSegundosRestantes((prev) => prev - 1);
+        setSecondsLeft((sec) => sec - 1);
       }, 1000);
     }
-    if (!activo) {
+    if (!running && intervalRef.current) {
       clearInterval(intervalRef.current);
     }
     return () => clearInterval(intervalRef.current);
-  }, [activo]);
+  }, [running]);
 
-  // Cuando llega a cero, suena alarma y guarda el progreso
   useEffect(() => {
-    if (segundosRestantes === 0 && activo) {
-      clearInterval(intervalRef.current);
-      setActivo(false);
-      setCompletado(true);
-      if (audioRef.current) {
-        audioRef.current.currentTime = 0;
-        audioRef.current.play();
-      }
-      const durEnMin = duration / 60;
-      const caloriasQuemadas = parseFloat(
-        (caloriesPerMin * durEnMin).toFixed(1)
-      );
-      addProgress(dateStr, ejercicio, duration, caloriasQuemadas);
+    if (secondsLeft === 0 && running) {
+      setRunning(false);
+      audioRef.current.play();
+      if (onFinish) onFinish();
     }
-  }, [
-    segundosRestantes,
-    activo,
-    duration,
-    caloriesPerMin,
-    ejercicio,
-    dateStr,
-    addProgress,
-  ]);
+  }, [secondsLeft, running, onFinish]);
 
-  const handleStart = () => {
-    if (completado) {
-      setSegundosRestantes(duration);
-      setCompletado(false);
-      setActivo(false);
-    } else {
-      setActivo(true);
-    }
+  const startTimer = () => {
+    setSecondsLeft(durationSeconds);
+    setRunning(true);
+  };
+  const stopTimer = () => {
+    setRunning(false);
+    setSecondsLeft(durationSeconds);
   };
 
+  const minutes = Math.floor(secondsLeft / 60);
+  const seconds = secondsLeft % 60;
+
   return (
-    <div className="flex flex-col items-center mt-4">
-      <div className="mb-2">
-        <span className="text-xl font-mono text-gray-800 dark:text-gray-100">
-          {formatTime(segundosRestantes)}
-        </span>
+    <div className="bg-gray-100 p-3 rounded-md inline-block">
+      <div className="text-2xl font-mono text-center mb-2">
+        {String(minutes).padStart(2, "0")}:
+        {String(seconds).padStart(2, "0")}
       </div>
-      <button
-        onClick={handleStart}
-        disabled={activo}
-        className={`px-4 py-2 rounded-md text-white ${
-          activo
-            ? "bg-gray-400 cursor-not-allowed"
-            : "bg-blue-600 hover:bg-blue-700"
-        }`}
-      >
-        {activo
-          ? lang === "es"
-            ? "En progreso…"
-            : "In Progress…"
-          : completado
-          ? lang === "es"
-            ? "Reiniciar"
-            : "Restart"
-          : lang === "es"
-          ? "Iniciar"
-          : "Start"}
-      </button>
-      <audio ref={audioRef}>
-        <source
-          src="https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg"
-          type="audio/ogg"
-        />
-        <source
-          src="https://actions.google.com/sounds/v1/alarms/alarm_clock.mp3"
-          type="audio/mpeg"
-        />
-        Tu navegador no soporta audio.
-      </audio>
+      <div className="flex justify-center space-x-2">
+        {!running ? (
+          <button
+            onClick={startTimer}
+            className="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-md"
+          >
+            Iniciar
+          </button>
+        ) : (
+          <button
+            onClick={stopTimer}
+            className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md"
+          >
+            Detener
+          </button>
+        )}
+      </div>
     </div>
   );
 }
