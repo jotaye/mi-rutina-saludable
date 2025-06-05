@@ -6,6 +6,7 @@ import {
   Route,
   Navigate,
   Link,
+  useLocation,
 } from "react-router-dom";
 import { initializeApp } from "firebase/app";
 import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
@@ -16,10 +17,13 @@ import Home from "./pages/Home";
 import WeekView from "./pages/WeekView";
 import Progress from "./pages/Progress";
 import Nutrition from "./pages/Nutrition";
+import UserProfile from "./pages/UserProfile";
 import DarkModeToggle from "./components/DarkModeToggle";
 import { ProgressProvider } from "./context/ProgressContext";
+import { UserProvider } from "./context/UserContext";
 
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+export const AppContext = createContext();
+
 const firebaseConfig = {
   apiKey: "AIzaSyC7jYi0ST5rfYvfZcb8QgeMmvvVcrKDFiU",
   authDomain: "mi-rutina-saludable.firebaseapp.com",
@@ -33,8 +37,6 @@ const firebaseConfig = {
 initializeApp(firebaseConfig);
 const auth = getAuth();
 
-export const AppContext = createContext();
-
 function App() {
   const [user, setUser] = useState(null);
   const [darkMode, setDarkMode] = useState(false);
@@ -42,7 +44,6 @@ function App() {
   const [loadingIntro, setLoadingIntro] = useState(true);
   const [authChecked, setAuthChecked] = useState(false);
 
-  // Observa el estado de autenticación
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (usr) => {
       setUser(usr);
@@ -51,18 +52,15 @@ function App() {
     return () => unsubscribe();
   }, []);
 
-  // Aplica el modo oscuro/claro
   useEffect(() => {
     document.documentElement.classList.toggle("dark", darkMode);
   }, [darkMode]);
 
-  // Simula pantalla de intro por 3 segundos
   useEffect(() => {
     const timeoutId = setTimeout(() => setLoadingIntro(false), 3000);
     return () => clearTimeout(timeoutId);
   }, []);
 
-  // Mientras dure la intro, muestra solo el video
   if (loadingIntro) {
     return (
       <div className="flex items-center justify-center h-screen bg-black">
@@ -80,7 +78,6 @@ function App() {
     );
   }
 
-  // Hasta que Firebase chequeé la sesión, muestra “Cargando…”
   if (!authChecked) {
     return (
       <div className="flex items-center justify-center h-screen bg-white">
@@ -93,51 +90,81 @@ function App() {
   const toggleLang = () => setLang((prev) => (prev === "es" ? "en" : "es"));
 
   return (
-    <ProgressProvider>
-      <AppContext.Provider value={{ darkMode, toggleDarkMode, lang, toggleLang }}>
-        <Router>
-          {user && (
-            <nav className="p-4 bg-white dark:bg-gray-800 shadow flex justify-between">
-              <div className="space-x-4">
-                <Link to="/" className="text-gray-700 dark:text-gray-200">
-                  {lang === "es" ? "Hoy" : "Today"}
-                </Link>
-                <Link to="/semana" className="text-gray-700 dark:text-gray-200">
-                  {lang === "es" ? "Semana" : "Week"}
-                </Link>
-                <Link to="/progreso" className="text-gray-700 dark:text-gray-200">
-                  {lang === "es" ? "Progreso" : "Progress"}
-                </Link>
-                <Link to="/nutricion" className="text-gray-700 dark:text-gray-200">
-                  {lang === "es" ? "Nutrición" : "Nutrition"}
-                </Link>
-              </div>
-              <div className="space-x-4 flex items-center">
-                <button
-                  onClick={() => signOut(auth)}
-                  className="text-red-600 hover:underline"
-                >
-                  {lang === "es" ? "Cerrar sesión" : "Log Out"}
-                </button>
-                <button onClick={toggleLang} className="text-gray-700 dark:text-gray-200">
-                  {lang === "es" ? "EN" : "ES"}
-                </button>
-                <DarkModeToggle />
-              </div>
-            </nav>
-          )}
+    <UserProvider>
+      <ProgressProvider>
+        <AppContext.Provider value={{ darkMode, toggleDarkMode, lang, toggleLang }}>
+          <Router>
+            {user && <Navbar lang={lang} />}
+            <Routes>
+              <Route path="/perfil" element={user ? <UserProfile /> : <Navigate to="/login" />} />
+              <Route path="/" element={user ? <Home /> : <Navigate to="/login" />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/registro" element={<Register />} />
+              <Route path="/semana" element={user ? <WeekView /> : <Navigate to="/login" />} />
+              <Route path="/progreso" element={user ? <Progress /> : <Navigate to="/login" />} />
+              <Route path="/nutricion" element={user ? <Nutrition /> : <Navigate to="/login" />} />
+            </Routes>
+          </Router>
+        </AppContext.Provider>
+      </ProgressProvider>
+    </UserProvider>
+  );
+}
 
-          <Routes>
-            <Route path="/" element={user ? <Home /> : <Navigate to="/login" />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/registro" element={<Register />} />
-            <Route path="/semana" element={user ? <WeekView /> : <Navigate to="/login" />} />
-            <Route path="/progreso" element={user ? <Progress /> : <Navigate to="/login" />} />
-            <Route path="/nutricion" element={user ? <Nutrition /> : <Navigate to="/login" />} />
-          </Routes>
-        </Router>
-      </AppContext.Provider>
-    </ProgressProvider>
+function Navbar({ lang }) {
+  const location = useLocation();
+
+  const links = [
+    { to: "/", label: lang === "es" ? "Hoy" : "Today" },
+    { to: "/semana", label: lang === "es" ? "Semana" : "Week" },
+    { to: "/progreso", label: lang === "es" ? "Progreso" : "Progress" },
+    { to: "/nutricion", label: lang === "es" ? "Nutrición" : "Nutrition" },
+    { to: "/perfil", label: lang === "es" ? "Perfil" : "Profile" },
+  ];
+
+  return (
+    <nav className="bg-white dark:bg-gray-800 shadow-md">
+      <div className="max-w-6xl mx-auto px-4">
+        <div className="flex justify-between">
+          <div className="flex space-x-4">
+            {links.map((link) => (
+              <Link
+                key={link.to}
+                to={link.to}
+                className={`py-5 px-3 ${
+                  location.pathname === link.to
+                    ? "text-blue-600 border-b-2 border-blue-600"
+                    : "text-gray-700 hover:text-blue-600"
+                }  
+                  dark:text-gray-300 dark:hover:text-blue-400 transition`}
+              >
+                {link.label}
+              </Link>
+            ))}
+          </div>
+          <div className="flex items-center space-x-4">
+            <button
+              onClick={() => {
+                const auth = getAuth();
+                signOut(auth);
+              }}
+              className="text-red-600 hover:text-red-800 transition"
+            >
+              {lang === "es" ? "Cerrar sesión" : "Log Out"}
+            </button>
+            <button
+              onClick={() => {
+                toggleLang();
+              }}
+              className="text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 transition"
+            >
+              {lang === "es" ? "EN" : "ES"}
+            </button>
+            <DarkModeToggle />
+          </div>
+        </div>
+      </div>
+    </nav>
   );
 }
 
