@@ -19,14 +19,15 @@ import Nutrition from "./pages/Nutrition";
 import DarkModeToggle from "./components/DarkModeToggle";
 import { ProgressProvider } from "./context/ProgressContext";
 
-// → Reemplaza estos valores con tu configuración de Firebase real:
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-  apiKey: "TU_API_KEY",
-  authDomain: "TU_AUTH_DOMAIN",
-  projectId: "TU_PROJECT_ID",
-  storageBucket: "TU_BUCKET",
-  messagingSenderId: "TU_SENDER_ID",
-  appId: "TU_APP_ID",
+  apiKey: "AIzaSyC7jYi0ST5rfYvfZcb8QgeMmvvVcrKDFiU",
+  authDomain: "mi-rutina-saludable.firebaseapp.com",
+  projectId: "mi-rutina-saludable",
+  storageBucket: "mi-rutina-saludable.appspot.com",
+  messagingSenderId: "17810301001",
+  appId: "1:17810301001:web:a0d9b260b138c81980df98",
+  measurementId: "G-W2ZMDYK46E"
 };
 
 initializeApp(firebaseConfig);
@@ -41,7 +42,7 @@ function App() {
   const [loadingIntro, setLoadingIntro] = useState(true);
   const [authChecked, setAuthChecked] = useState(false);
 
-  // Vigila el estado de autenticación
+  // Observa el estado de autenticación
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (usr) => {
       setUser(usr);
@@ -50,18 +51,18 @@ function App() {
     return () => unsubscribe();
   }, []);
 
-  // Cambia tema oscuro
+  // Aplica el modo oscuro/claro
   useEffect(() => {
     document.documentElement.classList.toggle("dark", darkMode);
   }, [darkMode]);
 
-  // Mostrar video de intro unos segundos
+  // Simula pantalla de intro por 3 segundos
   useEffect(() => {
     const timeoutId = setTimeout(() => setLoadingIntro(false), 3000);
     return () => clearTimeout(timeoutId);
   }, []);
 
-  // Si aún estamos mostrando la intro...
+  // Mientras dure la intro, muestra solo el video
   if (loadingIntro) {
     return (
       <div className="flex items-center justify-center h-screen bg-black">
@@ -79,7 +80,7 @@ function App() {
     );
   }
 
-  // Hasta no comprobar autenticación, mostramos “Cargando”
+  // Hasta que Firebase chequeé la sesión, muestra “Cargando…”
   if (!authChecked) {
     return (
       <div className="flex items-center justify-center h-screen bg-white">
@@ -127,24 +128,12 @@ function App() {
           )}
 
           <Routes>
-            <Route
-              path="/"
-              element={user ? <Home /> : <Navigate to="/login" />}
-            />
+            <Route path="/" element={user ? <Home /> : <Navigate to="/login" />} />
             <Route path="/login" element={<Login />} />
             <Route path="/registro" element={<Register />} />
-            <Route
-              path="/semana"
-              element={user ? <WeekView /> : <Navigate to="/login" />}
-            />
-            <Route
-              path="/progreso"
-              element={user ? <Progress /> : <Navigate to="/login" />}
-            />
-            <Route
-              path="/nutricion"
-              element={user ? <Nutrition /> : <Navigate to="/login" />}
-            />
+            <Route path="/semana" element={user ? <WeekView /> : <Navigate to="/login" />} />
+            <Route path="/progreso" element={user ? <Progress /> : <Navigate to="/login" />} />
+            <Route path="/nutricion" element={user ? <Nutrition /> : <Navigate to="/login" />} />
           </Routes>
         </Router>
       </AppContext.Provider>
