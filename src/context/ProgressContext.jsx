@@ -1,19 +1,26 @@
 // src/context/ProgressContext.jsx
 import React, { createContext, useState, useEffect } from "react";
 
-// Estructura inicial: vacío (se sobreescribirá cuando el usuario registre actividad)
-const initialProgress = {
-  // Ejemplo de cómo podría verse (vacío al principio):
-  // lunes: { ejerciciosCompletados: [], caloriasQuemadas: 0, minutosEjercicio: 0 },
-  // martes: { ... }
-};
+// Estructura inicial: vacío
+// Ahora cada día (clave) es un arreglo de registros:
+//   registros: [
+//     {
+//       fechaExacta: "2025-06-05T14:30:00.000Z",
+//       nombreEjercicio: "Flexiones",
+//       calorias: 50,
+//       duracionMin: 1,       // minutos redondeados, p.ej.
+//       secuencia: 1          // si repitió varias veces
+//     },
+//     { … }
+//   ]
+const initialProgress = {};
 
 export const ProgressContext = createContext();
 
 export function ProgressProvider({ children }) {
   const [progress, setProgress] = useState(initialProgress);
 
-  // Opcional: para persistir en localStorage
+  // Cargar de localStorage al arrancar
   useEffect(() => {
     const stored = localStorage.getItem("miRutinaProgreso");
     if (stored) {
@@ -25,43 +32,60 @@ export function ProgressProvider({ children }) {
     }
   }, []);
 
+  // Guardar en localStorage cada vez que cambien
   useEffect(() => {
     localStorage.setItem("miRutinaProgreso", JSON.stringify(progress));
   }, [progress]);
 
   /**
-   * Marca un ejercicio como completado en un día específico
+   * Registra automáticamente un ejercicio completado.
    *
-   * @param {string} dia      - "lunes", "martes", ... (en minúsculas)
-   * @param {object} data     - { nombreEjercicio: string, calorias: number, duracionMin: number }
+   * @param {string} diaClave           - Ej. "lunes", "martes", etc.
+   * @param {object} registroEjercicio  - {
+   *    nombreEjercicio: string,
+   *    calorias: number,
+   *    duracionMin: number  // (minutos redondeados)
+   * }
    */
-  function registrarEjercicio(dia, data) {
+  function registrarEjercicio(diaClave, registroEjercicio) {
     setProgress((prev) => {
       const copia = { ...prev };
-      // Si el día no existía, inicializa con valores por defecto
-      if (!copia[dia]) {
-        copia[dia] = {
-          ejerciciosCompletados: [],
-          caloriasQuemadas: 0,
-          minutosEjercicio: 0,
-        };
+      const fechaExacta = new Date().toISOString();
+
+      // Si no existe día, lo inicializamos como arreglo
+      if (!copia[diaClave]) {
+        copia[diaClave] = { registros: [] };
       }
-      // Actualiza la lista de ejercicios
-      copia[dia].ejerciciosCompletados.push(data.nombreEjercicio);
-      // Suma calorías y minutos
-      copia[dia].caloriasQuemadas += data.calorias;
-      copia[dia].minutosEjercicio += data.duracionMin;
+
+      // Calculamos cuántas veces ya se había completado este mismo ejercicio en el día
+      const registrosHoy = copia[diaClave].registros;
+      const mismasVeces = registrosHoy.filter(
+        (r) => r.nombreEjercicio === registroEjercicio.nombreEjercicio
+      ).length;
+      const secuencia = mismasVeces + 1;
+
+      // Construimos el objeto completo
+      const nuevoRegistro = {
+        fechaExacta,                                       // Fecha y hora ISO
+        nombreEjercicio: registroEjercicio.nombreEjercicio,
+        calorias: registroEjercicio.calorias,
+        duracionMin: registroEjercicio.duracionMin,
+        secuencia,                                         // 1, 2, 3… en ese día
+      };
+
+      // Agregamos al arreglo
+      copia[diaClave].registros = [...registrosHoy, nuevoRegistro];
       return copia;
     });
   }
 
   /**
-   * Reinicia el progreso de un día (quita todo lo registrado)
+   * Reinicia todo el progreso de un día (borra los registros).
    */
-  function reiniciarDia(dia) {
+  function reiniciarDia(diaClave) {
     setProgress((prev) => {
       const copia = { ...prev };
-      delete copia[dia];
+      delete copia[diaClave];
       return copia;
     });
   }
