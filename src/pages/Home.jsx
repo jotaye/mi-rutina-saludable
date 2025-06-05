@@ -4,7 +4,7 @@ import { AppContext } from "../App";
 import { UserContext } from "../context/UserContext";
 import Timer from "../components/Timer";
 
-// Rutina semanal con video/explicación y valores de calorías estimadas
+// Rutina semanal con datos “base” (duraciónBase en segundos, caloríasBase en kcal)
 const rutinaSemanal = {
   lunes: [
     {
@@ -16,7 +16,8 @@ const rutinaSemanal = {
         "Mantén espalda recta y mira al frente.",
         "Sube empujando con talones.",
       ],
-      calorias: 40, // Calorías estimadas en 1 min
+      duracionBase: 60,    // 60 segundos por set “base”
+      caloriasBase: 40,    // 40 kcal por ese set base
     },
     {
       nombre: "Caminadora (en casa)",
@@ -27,7 +28,8 @@ const rutinaSemanal = {
         "Aumenta a 5-6 km/h para ritmo moderado.",
         "Mantén 10 min y baja la velocidad para enfriar.",
       ],
-      calorias: 100, // Estimado por 10 min
+      duracionBase: 600,   // 600 segundos = 10 min base
+      caloriasBase: 100,   // 100 kcal por esos 10 min
     },
   ],
   martes: [
@@ -40,7 +42,8 @@ const rutinaSemanal = {
         "Empuja hasta extender brazos.",
         "Respira rítmicamente.",
       ],
-      calorias: 50,
+      duracionBase: 45,    // 45 segundos base
+      caloriasBase: 50,
     },
     {
       nombre: "Bicicleta estática (Gym Bike)",
@@ -50,7 +53,8 @@ const rutinaSemanal = {
         "Calienta 3-5 min, luego 10 min a intensidad media.",
         "Enfriar 2-3 min.",
       ],
-      calorias: 80,
+      duracionBase: 600,   // 600 s = 10 minutos
+      caloriasBase: 80,
     },
   ],
   miércoles: [
@@ -63,7 +67,8 @@ const rutinaSemanal = {
         "Tira con la espalda hasta que la barbilla sobrepase la barra.",
         "Baja despacio hasta brazos extendidos.",
       ],
-      calorias: 60,
+      duracionBase: 45,
+      caloriasBase: 60,
     },
     {
       nombre: "Curl de bíceps con mancuernas",
@@ -73,7 +78,8 @@ const rutinaSemanal = {
         "Flexiona codos manteniendo bíceps contraídos y muñecas rectas.",
         "Sube hasta el hombro y baja lentamente.",
       ],
-      calorias: 30,
+      duracionBase: 60,
+      caloriasBase: 30,
     },
   ],
   jueves: [
@@ -86,7 +92,8 @@ const rutinaSemanal = {
         "Empuja con la pierna delantera para regresar.",
         "Alterna con la otra pierna.",
       ],
-      calorias: 45,
+      duracionBase: 60,
+      caloriasBase: 45,
     },
     {
       nombre: "Curl con banda elástica",
@@ -96,7 +103,8 @@ const rutinaSemanal = {
         "Flexiona codos subiendo la banda hasta el hombro.",
         "Baja controladamente.",
       ],
-      calorias: 25,
+      duracionBase: 45,
+      caloriasBase: 25,
     },
   ],
   viernes: [
@@ -109,7 +117,8 @@ const rutinaSemanal = {
         "Realiza una flexión de brazos.",
         "Regresa pies a cuclillas y salta con brazos arriba.",
       ],
-      calorias: 70,
+      duracionBase: 60,
+      caloriasBase: 70,
     },
     {
       nombre: "Saltos con cuerda",
@@ -117,9 +126,10 @@ const rutinaSemanal = {
       descripcion: [
         "Agarra las asas, cuerdas detrás de los pies.",
         "Salta con ambos pies a la vez, rodillas ligeramente flexionadas.",
-        "Mantén ritmo constante por 1 minuto.",
+        "Mantén ritmo constante por 1 min.",
       ],
-      calorias: 60,
+      duracionBase: 60,
+      caloriasBase: 60,
     },
   ],
   sábado: [
@@ -131,7 +141,8 @@ const rutinaSemanal = {
         "Mantén cada postura 20-30 seg.",
         "Focaliza en respiración profunda.",
       ],
-      calorias: 20,
+      duracionBase: 600,   // 10 min
+      caloriasBase: 20,
     },
   ],
   domingo: [
@@ -142,10 +153,38 @@ const rutinaSemanal = {
         "Camina 15–20 minutos a paso suave.",
         "Realiza estiramientos dinámicos ligeros (piernas, espalda).",
       ],
-      calorias: 15,
+      duracionBase: 900,   // 15 min
+      caloriasBase: 15,
     },
   ],
 };
+
+// Función para obtener factor de duración según nivel
+function factorDuracion(nivel) {
+  switch (nivel) {
+    case "principiante":
+      return 1.0;
+    case "intermedio":
+      return 1.5;
+    case "avanzado":
+      return 2.0;
+    default:
+      return 1.0;
+  }
+}
+// Función para obtener factor de calorías según nivel
+function factorCalorias(nivel) {
+  switch (nivel) {
+    case "principiante":
+      return 1.0;
+    case "intermedio":
+      return 1.2;
+    case "avanzado":
+      return 1.5;
+    default:
+      return 1.0;
+  }
+}
 
 export default function Home() {
   const { lang } = useContext(AppContext);
@@ -155,6 +194,10 @@ export default function Home() {
   const dias = ["domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado"];
   const diaHoy = dias[todayIndex];
   const ejerciciosHoy = rutinaSemanal[diaHoy] || [];
+
+  // Sacamos los factores de tiempo/calorías basados en profile.nivel
+  const fDur = factorDuracion(profile.nivel);
+  const fCal = factorCalorias(profile.nivel);
 
   return (
     <div className="p-6">
@@ -170,59 +213,69 @@ export default function Home() {
             {lang === "es" ? "Descanso" : "Rest day"}
           </p>
         ) : (
-          ejerciciosHoy.map((ej, idx) => (
-            <div
-              key={idx}
-              className="border rounded-md p-4 shadow-md hover:shadow-lg transition"
-            >
-              <h2 className="text-2xl font-semibold mb-2">{ej.nombre}</h2>
-              {/* Video */}
-              <video
-                src={ej.video}
-                controls
-                className="w-full rounded-md mb-2 bg-black"
+          ejerciciosHoy.map((ej, idx) => {
+            // Calculamos los valores ajustados
+            const duracionAjustada = Math.round(ej.duracionBase * fDur); // segundos
+            const caloriasAjustadas = Math.round(ej.caloriasBase * fCal);
+
+            return (
+              <div
+                key={idx}
+                className="border rounded-md p-4 shadow-md hover:shadow-lg transition"
               >
-                {lang === "es"
-                  ? "Tu navegador no puede reproducir este video."
-                  : "Your browser cannot play this video."}
-              </video>
-              {/* Descripción paso a paso */}
-              <ol className="list-decimal list-inside text-gray-700 mb-3">
-                {ej.descripcion.map((paso, i) => (
-                  <li key={i}>{paso}</li>
-                ))}
-              </ol>
-              {/* Temporizador automático: 60 segundos por ejercicio */}
-              <div className="flex items-center space-x-4">
-                <Timer
-                  durationSeconds={60}
-                  nombreEjercicio={ej.nombre}
-                  caloriasEstimadas={ej.calorias}
-                  diaClave={diaHoy}
-                  onFinish={() =>
-                    alert(
-                      lang === "es"
-                        ? `${ej.nombre} completado y registrado automáticamente.`
-                        : `${ej.nombre} completed and logged automatically.`
-                    )
-                  }
-                />
-                <p className="text-sm text-gray-500">
+                <h2 className="text-2xl font-semibold mb-2">{ej.nombre}</h2>
+                {/* Video */}
+                <video
+                  src={ej.video}
+                  controls
+                  className="w-full rounded-md mb-2 bg-black"
+                >
                   {lang === "es"
-                    ? `Calorías estimadas: ${ej.calorias} kcal`
-                    : `Est. Calories: ${ej.calorias} kcal`}
-                </p>
+                    ? "Tu navegador no puede reproducir este video."
+                    : "Your browser cannot play this video."}
+                </video>
+                {/* Descripción paso a paso */}
+                <ol className="list-decimal list-inside text-gray-700 mb-3">
+                  {ej.descripcion.map((paso, i) => (
+                    <li key={i}>{paso}</li>
+                  ))}
+                </ol>
+                {/* Temporizador automático usando duracionAjustada */}
+                <div className="flex items-center space-x-4">
+                  <Timer
+                    durationSeconds={duracionAjustada}
+                    nombreEjercicio={ej.nombre}
+                    caloriasEstimadas={caloriasAjustadas}
+                    diaClave={diaHoy}
+                    onFinish={() =>
+                      alert(
+                        lang === "es"
+                          ? `${ej.nombre} completado y registrado automáticamente.`
+                          : `${ej.nombre} completed and logged automatically.`
+                      )
+                    }
+                  />
+                  <div>
+                    <p className="text-sm text-gray-500">
+                      {lang === "es"
+                        ? `Duración: ${Math.round(duracionAjustada / 60)} min`
+                        : `Duration: ${Math.round(duracionAjustada / 60)} min`}
+                    </p>
+                    <p className="text-sm text-gray-500">
+                      {lang === "es"
+                        ? `Est. Calorías: ${caloriasAjustadas} kcal`
+                        : `Est. Calories: ${caloriasAjustadas} kcal`}
+                    </p>
+                  </div>
+                </div>
               </div>
-            </div>
-          ))
+            );
+          })
         )}
       </div>
 
       <div className="mt-6">
-        <a
-          href="/semana"
-          className="text-blue-600 hover:underline"
-        >
+        <a href="/semana" className="text-blue-600 hover:underline">
           {lang === "es" ? "Ver toda la semana" : "See full week"}
         </a>
       </div>
@@ -234,10 +287,7 @@ export default function Home() {
               ? "Para personalizar tu rutina, completa tu perfil."
               : "To personalize your routine, complete your profile."}
           </p>
-          <a
-            href="/perfil"
-            className="text-yellow-800 font-semibold hover:underline"
-          >
+          <a href="/perfil" className="text-yellow-800 font-semibold hover:underline">
             {lang === "es" ? "Ir a Perfil" : "Go to Profile"}
           </a>
         </div>
