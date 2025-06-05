@@ -1,16 +1,28 @@
 // src/components/Timer.jsx
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useContext } from "react";
+import { ProgressContext } from "../context/ProgressContext";
 
-export default function Timer({ durationSeconds = 30, onFinish }) {
+// Props:
+//   durationSeconds (número de segundos, p.ej. 60),
+//   nombreEjercicio (string),
+//   caloriasEstimadas (número),
+//   diaClave (string: "lunes", "martes", …)
+export default function Timer({
+  durationSeconds = 30,
+  nombreEjercicio = "Ejercicio genérico",
+  caloriasEstimadas = 0,
+  diaClave = "",
+}) {
+  const { registrarEjercicio } = useContext(ProgressContext);
+
   const [secondsLeft, setSecondsLeft] = useState(durationSeconds);
   const [running, setRunning] = useState(false);
   const intervalRef = useRef(null);
   const audioRef = useRef(null);
 
   useEffect(() => {
-    audioRef.current = new Audio(
-      "/assets/alarm.mp3"
-    ); // Debes colocar un archivo alarm.mp3 en /public/assets/
+    // Carga el sonido de alarma (coloca un archivo alarm.mp3 en public/assets)
+    audioRef.current = new Audio("/assets/alarm.mp3");
   }, []);
 
   useEffect(() => {
@@ -19,19 +31,29 @@ export default function Timer({ durationSeconds = 30, onFinish }) {
         setSecondsLeft((sec) => sec - 1);
       }, 1000);
     }
-    if (!running && intervalRef.current) {
+    if ((!running || secondsLeft === 0) && intervalRef.current) {
       clearInterval(intervalRef.current);
     }
     return () => clearInterval(intervalRef.current);
-  }, [running]);
+  }, [running, secondsLeft]);
 
   useEffect(() => {
     if (secondsLeft === 0 && running) {
       setRunning(false);
       audioRef.current.play();
-      if (onFinish) onFinish();
+
+      // Registra el ejercicio AUTOMÁTICAMENTE:
+      // Redondeamos la duración en minutos (al valor más cercano):
+      const duracionMinutos =
+        Math.round(durationSeconds / 60); // 1 minuto para 60 s
+
+      registrarEjercicio(diaClave, {
+        nombreEjercicio,
+        calorias: caloriasEstimadas,
+        duracionMin: duracionMinutos,
+      });
     }
-  }, [secondsLeft, running, onFinish]);
+  }, [secondsLeft, running, registrarEjercicio, diaClave, nombreEjercicio, caloriasEstimadas, durationSeconds]);
 
   const startTimer = () => {
     setSecondsLeft(durationSeconds);
@@ -55,14 +77,14 @@ export default function Timer({ durationSeconds = 30, onFinish }) {
         {!running ? (
           <button
             onClick={startTimer}
-            className="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-md"
+            className="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-md transition"
           >
             Iniciar
           </button>
         ) : (
           <button
             onClick={stopTimer}
-            className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md"
+            className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md transition"
           >
             Detener
           </button>
