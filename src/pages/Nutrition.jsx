@@ -6,10 +6,21 @@ export default function Nutrition() {
   const { lang } = useContext(AppContext);
 
   return (
-    <div className="p-6 max-w-3xl mx-auto space-y-8">
+    <div className="p-6 max-w-3xl mx-auto space-y-10 font-serif">
       <h1 className="text-3xl font-bold text-center">
-        {lang === "es" ? "Nutrición Saludable para Diabéticos" : "Healthy Nutrition for Diabetics"}
+        {lang === "es"
+          ? "Nutrición Saludable para Diabéticos"
+          : "Healthy Nutrition for Diabetics"}
       </h1>
+
+      {/* IMAGEN DE ENCABEZADO */}
+      <div className="flex justify-center">
+        <img
+          src="/assets/nutrition/avocado-bowl.jpg"
+          alt="Nutrición Diabéticos"
+          className="w-full max-w-md rounded-lg shadow-md"
+        />
+      </div>
 
       {/* 1. Introducción */}
       <section className="space-y-4">
@@ -30,25 +41,33 @@ export default function Nutrition() {
         </h2>
         <ul className="list-disc list-inside text-gray-700 space-y-2">
           <li>
-            <strong>{lang === "es" ? "Control de carbohidratos:" : "Carbohydrate control:"}</strong>{" "}
+            <strong>
+              {lang === "es" ? "Control de carbohidratos:" : "Carbohydrate control:"}
+            </strong>{" "}
             {lang === "es"
               ? "Elige carbohidratos de índice glucémico bajo o moderado (verduras de hoja verde, avena integral, legumbres). Evita pan blanco, arroz blanco y azúcares refinados."
               : "Choose low or moderate glycemic-index carbs (leafy greens, steel-cut oats, legumes). Avoid white bread, white rice, and refined sugars."}
           </li>
           <li>
-            <strong>{lang === "es" ? "Proteínas magras:" : "Lean proteins:"}</strong>{" "}
+            <strong>
+              {lang === "es" ? "Proteínas magras:" : "Lean proteins:"}
+            </strong>{" "}
             {lang === "es"
               ? "Incluye fuentes como pechuga de pollo, pavo, pescado, huevos y cortes magros de res. Ayuda a mantener saciedad y preservar masa muscular."
               : "Include options like chicken breast, turkey, fish, eggs, and lean cuts of beef. Helps with satiety and muscle preservation."}
           </li>
           <li>
-            <strong>{lang === "es" ? "Grasas saludables:" : "Healthy fats:"}</strong>{" "}
+            <strong>
+              {lang === "es" ? "Grasas saludables:" : "Healthy fats:"}
+            </strong>{" "}
             {lang === "es"
               ? "Opta por aguacate, aceite de oliva extra virgen, frutos secos en porciones moderadas y semillas (chía, linaza). Regulan la absorción de carbohidratos."
               : "Opt for avocado, extra-virgin olive oil, nuts (in moderation), and seeds (chia, flax). They help regulate carbohydrate absorption."}
           </li>
           <li>
-            <strong>{lang === "es" ? "Fibra:" : "Fiber:"}</strong>{" "}
+            <strong>
+              {lang === "es" ? "Fibra:" : "Fiber:"}
+            </strong>{" "}
             {lang === "es"
               ? "Consume verduras, frutas enteras (no en jugo) y legumbres. La fibra mejora la sensibilidad a la insulina y retrasa el pico de glucosa."
               : "Eat vegetables, whole fruits (not juiced), and legumes. Fiber improves insulin sensitivity and delays glucose spikes."}
@@ -62,71 +81,123 @@ export default function Nutrition() {
           {lang === "es" ? "3. Ejemplo de Plan de Comidas" : "3. Sample Meal Plan"}
         </h2>
 
-        <h3 className="text-xl font-medium">
-          {lang === "es" ? "Desayuno" : "Breakfast"}
-        </h3>
-        <ul className="list-disc list-inside text-gray-700 space-y-1">
-          <li>
-            {lang === "es"
-              ? "Opción 1: Avena integral con leche descremada, trozos de almendra y bayas frescas."
-              : "Option 1: Steel-cut oats with skim milk, chopped almonds, and fresh berries."}
-          </li>
-          <li>
-            {lang === "es"
-              ? "Opción 2: Omelette de claras con espinaca, tomate y champiñones + una rebanada de pan integral."
-              : "Option 2: Egg-white omelette with spinach, tomato, and mushrooms, plus one slice of whole-grain toast."}
-          </li>
-        </ul>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* Desayuno */}
+          <div className="bg-white rounded-lg shadow-md overflow-hidden">
+            <img
+              src="/assets/nutrition/eggs-avocado.jpg"
+              alt="Desayuno"
+              className="w-full h-32 object-cover rounded-t-lg"
+            />
+            <div className="p-4">
+              <h3 className="text-xl font-semibold mb-2">
+                {lang === "es" ? "Desayuno" : "Breakfast"}
+              </h3>
+              <ul className="list-disc list-inside text-gray-700 space-y-1">
+                <li>
+                  {lang === "es"
+                    ? "Avena integral con leche descremada, trozos de almendra y bayas frescas."
+                    : "Steel-cut oats with skim milk, chopped almonds, and fresh berries."}
+                </li>
+                <li>
+                  {lang === "es"
+                    ? "Omelette de claras con espinaca, tomate y champiñones + una rebanada de pan integral."
+                    : "Egg-white omelette with spinach, tomato, and mushrooms, plus one slice of whole-grain toast."}
+                </li>
+              </ul>
+            </div>
+          </div>
 
-        <h3 className="text-xl font-medium">
-          {lang === "es" ? "Media mañana" : "Mid-Morning Snack"}
-        </h3>
-        <p className="text-gray-700">
-          {lang === "es"
-            ? "Yogur griego descremado sin azúcar + una cucharada de semillas de chía."
-            : "Nonfat Greek yogurt (unsweetened) + one tablespoon of chia seeds."}
-        </p>
+          {/* Media mañana */}
+          <div className="bg-white rounded-lg shadow-md overflow-hidden">
+            <img
+              src="/assets/nutrition/yogurt-chia.jpg"
+              alt="Media mañana"
+              className="w-full h-32 object-cover rounded-t-lg"
+            />
+            <div className="p-4">
+              <h3 className="text-xl font-semibold mb-2">
+                {lang === "es" ? "Media mañana" : "Mid-Morning Snack"}
+              </h3>
+              <p className="text-gray-700">
+                {lang === "es"
+                  ? "Yogur griego descremado sin azúcar + una cucharada de semillas de chía."
+                  : "Nonfat Greek yogurt (unsweetened) + one tablespoon of chia seeds."}
+              </p>
+            </div>
+          </div>
 
-        <h3 className="text-xl font-medium">
-          {lang === "es" ? "Almuerzo" : "Lunch"}
-        </h3>
-        <ul className="list-disc list-inside text-gray-700 space-y-1">
-          <li>
-            {lang === "es"
-              ? "Pechuga de pollo a la plancha + ensalada mixta (lechuga, pepino, pepinillo, aderezo de aceite de oliva y limón) + porción de quinoa."
-              : "Grilled chicken breast + mixed salad (lettuce, cucumber, pickles, olive oil & lemon dressing) + a portion of quinoa."}
-          </li>
-          <li>
-            {lang === "es"
-              ? "Alternativa vegetariana: Ensalada de garbanzos con pimientos, cebolla, tomate y perejil + vinagreta ligera."
-              : "Vegetarian alternative: Chickpea salad with bell peppers, onion, tomato, and parsley + light vinaigrette."}
-          </li>
-        </ul>
+          {/* Almuerzo */}
+          <div className="bg-white rounded-lg shadow-md overflow-hidden">
+            <img
+              src="/assets/nutrition/steak-salad.jpg"
+              alt="Almuerzo"
+              className="w-full h-32 object-cover rounded-t-lg"
+            />
+            <div className="p-4">
+              <h3 className="text-xl font-semibold mb-2">
+                {lang === "es" ? "Almuerzo" : "Lunch"}
+              </h3>
+              <ul className="list-disc list-inside text-gray-700 space-y-1">
+                <li>
+                  {lang === "es"
+                    ? "Pechuga de pollo a la plancha + ensalada mixta (lechuga, pepino, pepinillo) con aceite de oliva y limón."
+                    : "Grilled chicken breast + mixed salad (lettuce, cucumber, pickles) with olive oil & lemon dressing."}
+                </li>
+                <li>
+                  {lang === "es"
+                    ? "Alternativa vegetariana: Ensalada de garbanzos con pimientos, cebolla, tomate y perejil + vinagreta ligera."
+                    : "Vegetarian alternative: Chickpea salad with bell peppers, onion, tomato, and parsley + light vinaigrette."}
+                </li>
+              </ul>
+            </div>
+          </div>
 
-        <h3 className="text-xl font-medium">
-          {lang === "es" ? "Merienda" : "Afternoon Snack"}
-        </h3>
-        <p className="text-gray-700">
-          {lang === "es"
-            ? "Una pieza de fruta de bajo índice glucémico (manzana o pera) + 10 almendras."
-            : "One low-GI fruit (apple or pear) + 10 almonds."}
-        </p>
+          {/* Merienda */}
+          <div className="bg-white rounded-lg shadow-md overflow-hidden">
+            <img
+              src="/assets/nutrition/fruit-nuts.jpg"
+              alt="Merienda"
+              className="w-full h-32 object-cover rounded-t-lg"
+            />
+            <div className="p-4">
+              <h3 className="text-xl font-semibold mb-2">
+                {lang === "es" ? "Merienda" : "Afternoon Snack"}
+              </h3>
+              <p className="text-gray-700">
+                {lang === "es"
+                  ? "Una pieza de fruta de bajo índice glucémico (manzana o pera) + 10 almendras."
+                  : "One low-GI fruit (apple or pear) + 10 almonds."}
+              </p>
+            </div>
+          </div>
 
-        <h3 className="text-xl font-medium">
-          {lang === "es" ? "Cena" : "Dinner"}
-        </h3>
-        <ul className="list-disc list-inside text-gray-700 space-y-1">
-          <li>
-            {lang === "es"
-              ? "Filete de salmón al horno + brócoli al vapor + batata al horno (cantidad moderada)."
-              : "Baked salmon fillet + steamed broccoli + roasted sweet potato (moderate portion)."}
-          </li>
-          <li>
-            {lang === "es"
-              ? "Alternativa carnívora: Pechuga de pollo asada con especias + ensalada verde sin aderezo pesado."
-              : "Carnivore alternative: Roast chicken breast with spices + green salad without heavy dressing."}
-          </li>
-        </ul>
+          {/* Cena */}
+          <div className="bg-white rounded-lg shadow-md overflow-hidden">
+            <img
+              src="/assets/nutrition/fish-asparagus.jpg"
+              alt="Cena"
+              className="w-full h-32 object-cover rounded-t-lg"
+            />
+            <div className="p-4">
+              <h3 className="text-xl font-semibold mb-2">
+                {lang === "es" ? "Cena" : "Dinner"}
+              </h3>
+              <ul className="list-disc list-inside text-gray-700 space-y-1">
+                <li>
+                  {lang === "es"
+                    ? "Filete de salmón al horno + brócoli al vapor + batata al horno (porción moderada)."
+                    : "Baked salmon fillet + steamed broccoli + roasted sweet potato (moderate portion)."}
+                </li>
+                <li>
+                  {lang === "es"
+                    ? "Alternativa carnívora: Pechuga de pollo asada con especias + ensalada verde sin aderezo pesado."
+                    : "Carnivore alternative: Roast chicken breast with spices + green salad without heavy dressing."}
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
       </section>
 
       {/* 4. Tips de Ayuno Intermitente */}
@@ -161,7 +232,9 @@ export default function Nutrition() {
       {/* 5. Dieta Carnívora y Moderación de Proteínas */}
       <section className="space-y-4">
         <h2 className="text-2xl font-semibold">
-          {lang === "es" ? "5. Dieta Carnívora (Con Moderación)" : "5. Carnivore Diet (In Moderation)"}
+          {lang === "es"
+            ? "5. Dieta Carnívora (Con Moderación)"
+            : "5. Carnivore Diet (In Moderation)"}
         </h2>
         <p className="text-gray-700 leading-relaxed">
           {lang === "es"
@@ -190,7 +263,9 @@ export default function Nutrition() {
       {/* 6. Suplementos Recomendados */}
       <section className="space-y-4">
         <h2 className="text-2xl font-semibold">
-          {lang === "es" ? "6. Suplementos Recomendados" : "6. Recommended Supplements"}
+          {lang === "es"
+            ? "6. Suplementos Recomendados"
+            : "6. Recommended Supplements"}
         </h2>
         <ul className="list-disc list-inside text-gray-700 space-y-2">
           <li>
