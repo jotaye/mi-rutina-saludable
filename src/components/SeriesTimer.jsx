@@ -1,6 +1,7 @@
 // src/components/SeriesTimer.jsx
 import React, { useState, useEffect, useRef, useContext } from "react";
 import { ProgressContext } from "../context/ProgressContext";
+import { PlayIcon, PauseIcon } from "@heroicons/react/24/outline";
 
 export default function SeriesTimer({
   series = 1,
@@ -14,42 +15,25 @@ export default function SeriesTimer({
 }) {
   const { registrarEjercicio } = useContext(ProgressContext);
 
-  // Factores de nivel
-  const factorDuracion = (nivel) => {
-    switch (nivel) {
-      case "principiante":
-        return 1.0;
-      case "intermedio":
-        return 1.5;
-      case "avanzado":
-        return 2.0;
-      default:
-        return 1.0;
-    }
-  };
-  const factorCalorias = (nivel) => {
-    switch (nivel) {
-      case "principiante":
-        return 1.0;
-      case "intermedio":
-        return 1.2;
-      case "avanzado":
-        return 1.5;
-      default:
-        return 1.0;
-    }
-  };
+  const factorDuracion = {
+    principiante: 1.0,
+    intermedio: 1.5,
+    avanzado: 2.0,
+  }[nivel] || 1.0;
 
-  // Ajustes según nivel
-  const durSerieAjustada = Math.round(duracionSerie * factorDuracion(nivel));
-  const descansoAjustado = Math.round(descanso * factorDuracion(nivel));
-  const caloriasPorSerie = Math.round(caloriasBase * factorCalorias(nivel));
+  const factorCalorias = {
+    principiante: 1.0,
+    intermedio: 1.2,
+    avanzado: 1.5,
+  }[nivel] || 1.0;
 
-  // Tiempo total (series + descansos intermedios)
+  const durSerieAjustada = Math.round(duracionSerie * factorDuracion);
+  const descansoAjustado = Math.round(descanso * factorDuracion);
+  const caloriasPorSerie = Math.round(caloriasBase * factorCalorias);
+
   const tiempoTotalSegundos =
     series * durSerieAjustada + (series - 1) * descansoAjustado;
 
-  // Estados de temporizador
   const [actualSerie, setActualSerie] = useState(1);
   const [esDescanso, setEsDescanso] = useState(false);
   const [secondsLeft, setSecondsLeft] = useState(durSerieAjustada);
@@ -66,43 +50,36 @@ export default function SeriesTimer({
       intervalRef.current = setInterval(() => {
         setSecondsLeft((s) => s - 1);
       }, 1000);
-    }
-    if ((!running || secondsLeft === 0) && intervalRef.current) {
+    } else {
       clearInterval(intervalRef.current);
     }
     return () => clearInterval(intervalRef.current);
   }, [running, secondsLeft]);
 
   useEffect(() => {
-    if (secondsLeft === 0 && running) {
+    if (running && secondsLeft === 0) {
       audioRef.current.play();
       setRunning(false);
 
       if (!esDescanso) {
-        // Terminó una serie
         if (actualSerie < series) {
-          // Iniciar descanso
           setEsDescanso(true);
           setSecondsLeft(descansoAjustado);
           setRunning(true);
         } else {
-          // Terminó la última serie → registrar ejercicio completo
           const duracionTotalMin = Math.round(tiempoTotalSegundos / 60);
           const caloriasTotales = caloriasPorSerie * series;
-
           registrarEjercicio(diaClave, {
             nombreEjercicio,
             calorias: caloriasTotales,
             duracionMin: duracionTotalMin,
             seriesCompletas: series,
           });
-
           onFinish();
         }
       } else {
-        // Terminó un descanso → iniciar siguiente serie
         setEsDescanso(false);
-        setActualSerie((prev) => prev + 1);
+        setActualSerie((p) => p + 1);
         setSecondsLeft(durSerieAjustada);
         setRunning(true);
       }
@@ -156,25 +133,25 @@ export default function SeriesTimer({
         {!running ? (
           <button
             onClick={startRoutine}
-            className="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-md transition"
+            className="flex items-center bg-primary-500 hover:bg-primary-600 text-white px-3 py-1 rounded-md space-x-1 transition duration-200 ease-in-out"
           >
-            Iniciar
+            <PlayIcon className="h-5 w-5" />
+            <span>Iniciar</span>
           </button>
         ) : (
           <button
             onClick={stopRoutine}
-            className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md transition"
+            className="flex items-center bg-accent-500 hover:bg-accent-600 text-white px-3 py-1 rounded-md space-x-1 transition duration-200 ease-in-out"
           >
-            Detener
+            <PauseIcon className="h-5 w-5" />
+            <span>Detener</span>
           </button>
         )}
       </div>
       <div className="text-sm text-gray-500">
-        <p>
-          {`Objetivo: ${series}×${Math.round(
-            durSerieAjustada / 60
-          )} min, descanso ${descansoAjustado} s`}
-        </p>
+        <p>{`Objetivo: ${series}×${Math.round(
+          durSerieAjustada / 60
+        )} min, descanso ${descansoAjustado}s`}</p>
         <p>{`Cal. totales (est.): ${
           caloriasPorSerie * series
         } kcal`}</p>
