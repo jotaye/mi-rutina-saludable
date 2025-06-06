@@ -7,13 +7,19 @@ export default function Progress() {
   const { progress, reiniciarDia } = useContext(ProgressContext);
   const { lang } = useContext(AppContext);
 
-  // Orden de días para mostrar
-  const diasSemana = ["lunes", "martes", "miercoles", "jueves", "viernes", "sabado", "domingo"];
+  const diasSemana = [
+    "lunes",
+    "martes",
+    "miércoles",
+    "jueves",
+    "viernes",
+    "sábado",
+    "domingo",
+  ];
 
-  // Función auxiliar para formatear fecha ISO a algo legible
   const formatearFecha = (iso) => {
     const d = new Date(iso);
-    return d.toLocaleString(); // p.ej. "5/6/2025 14:32:10"
+    return d.toLocaleString(); // ej. "5/6/2025 14:32:10"
   };
 
   return (
@@ -22,12 +28,11 @@ export default function Progress() {
         {lang === "es" ? "Progreso" : "Progress"}
       </h1>
 
-      {/* Recorremos cada día */}
       {diasSemana.map((dia) => {
         const infoDia = progress[dia];
 
         return (
-          <div key={dia} className="mb-6 bg-white rounded-md shadow-md">
+          <div key={dia} className="mb-6 bg-white rounded-md shadow-md overflow-hidden">
             <div className="flex justify-between items-center px-4 py-2 bg-gray-200">
               <h2 className="text-2xl font-semibold capitalize">{dia}</h2>
               {infoDia && (
@@ -39,6 +44,7 @@ export default function Progress() {
                 </button>
               )}
             </div>
+
             {infoDia ? (
               <div className="p-4 space-y-4">
                 {infoDia.registros.map((r, idx) => (
@@ -54,12 +60,16 @@ export default function Progress() {
                       {r.nombreEjercicio}
                     </p>
                     <p>
-                      <strong>{lang === "es" ? "Calorías:" : "Calories:"}</strong>{" "}
-                      {r.calorias} kcal
+                      <strong>{lang === "es" ? "Series:" : "Sets:"}</strong>{" "}
+                      {r.seriesCompletas}
                     </p>
                     <p>
-                      <strong>{lang === "es" ? "Duración:" : "Duration:"}</strong>{" "}
-                      {r.duracionMin} {lang === "es" ? "minutos" : "mins"}
+                      <strong>{lang === "es" ? "Duración total:" : "Total time:"}</strong>{" "}
+                      {r.duracionMin} {lang === "es" ? "min" : "min"}
+                    </p>
+                    <p>
+                      <strong>{lang === "es" ? "Calorías totales:" : "Total calories:"}</strong>{" "}
+                      {r.calorias} kcal
                     </p>
                     <p>
                       <strong>{lang === "es" ? "Secuencia:" : "Sequence:"}</strong>{" "}
