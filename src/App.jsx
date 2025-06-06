@@ -31,7 +31,7 @@ const firebaseConfig = {
   storageBucket: "mi-rutina-saludable.appspot.com",
   messagingSenderId: "17810301001",
   appId: "1:17810301001:web:a0d9b260b138c81980df98",
-  measurementId: "G-W2ZMDYK46E"
+  measurementId: "G-W2ZMDYK46E",
 };
 
 initializeApp(firebaseConfig);
@@ -96,13 +96,28 @@ function App() {
           <Router>
             {user && <Navbar lang={lang} toggleLang={toggleLang} />}
             <Routes>
-              <Route path="/perfil" element={user ? <UserProfile /> : <Navigate to="/login" />} />
-              <Route path="/" element={user ? <Home /> : <Navigate to="/login" />} />
+              <Route
+                path="/perfil"
+                element={user ? <UserProfile /> : <Navigate to="/login" />}
+              />
+              <Route
+                path="/"
+                element={user ? <Home /> : <Navigate to="/login" />}
+              />
               <Route path="/login" element={<Login />} />
               <Route path="/registro" element={<Register />} />
-              <Route path="/semana" element={user ? <WeekView /> : <Navigate to="/login" />} />
-              <Route path="/progreso" element={user ? <Progress /> : <Navigate to="/login" />} />
-              <Route path="/nutricion" element={user ? <Nutrition /> : <Navigate to="/login" />} />
+              <Route
+                path="/semana"
+                element={user ? <WeekView /> : <Navigate to="/login" />}
+              />
+              <Route
+                path="/progreso"
+                element={user ? <Progress /> : <Navigate to="/login" />}
+              />
+              <Route
+                path="/nutricion"
+                element={user ? <Nutrition /> : <Navigate to="/login" />}
+              />
             </Routes>
           </Router>
         </AppContext.Provider>
