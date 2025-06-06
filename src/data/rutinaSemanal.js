@@ -7,8 +7,8 @@ export const rutinaSemanal = {
       video: "/assets/squat.mov",
       series: 4,
       duracionSerie: 60,   // 60 segundos cada serie
-      descanso: 30,        // 30 segundos de descanso entre series
-      caloriasBase: 40,    // kcal que quema cada serie base
+      descanso: 30,        // 30 segundos de descanso
+      caloriasBase: 40,    // kcal por serie base
     },
     {
       nombre: "Caminadora (en casa)",
@@ -16,7 +16,15 @@ export const rutinaSemanal = {
       series: 1,
       duracionSerie: 600,  // 600 segundos = 10 minutos
       descanso: 0,
-      caloriasBase: 100,   // kcal que quema en esos 10 minutos
+      caloriasBase: 100,
+    },
+    {
+      nombre: "Elíptica (Home Elliptical)",
+      video: "/assets/elliptical.mov",
+      series: 1,
+      duracionSerie: 600,  // 10 minutos
+      descanso: 0,
+      caloriasBase: 90,
     },
   ],
   martes: [
@@ -36,6 +44,14 @@ export const rutinaSemanal = {
       descanso: 0,
       caloriasBase: 80,
     },
+    {
+      nombre: "Escaladora (Home Stepper)",
+      video: "/assets/stepper.mov",
+      series: 1,
+      duracionSerie: 600,
+      descanso: 0,
+      caloriasBase: 85,
+    },
   ],
   miércoles: [
     {
@@ -53,6 +69,14 @@ export const rutinaSemanal = {
       duracionSerie: 60,
       descanso: 30,
       caloriasBase: 30,
+    },
+    {
+      nombre: "Elíptica (Home Elliptical)",
+      video: "/assets/elliptical.mov",
+      series: 1,
+      duracionSerie: 600,
+      descanso: 0,
+      caloriasBase: 90,
     },
   ],
   jueves: [
@@ -72,6 +96,14 @@ export const rutinaSemanal = {
       descanso: 30,
       caloriasBase: 25,
     },
+    {
+      nombre: "Escaladora (Home Stepper)",
+      video: "/assets/stepper.mov",
+      series: 1,
+      duracionSerie: 600,
+      descanso: 0,
+      caloriasBase: 85,
+    },
   ],
   viernes: [
     {
@@ -90,6 +122,14 @@ export const rutinaSemanal = {
       descanso: 30,
       caloriasBase: 60,
     },
+    {
+      nombre: "Caminadora (en casa)",
+      video: "/assets/treadmill.mov",
+      series: 1,
+      duracionSerie: 600,
+      descanso: 0,
+      caloriasBase: 100,
+    },
   ],
   sábado: [
     {
@@ -100,6 +140,14 @@ export const rutinaSemanal = {
       descanso: 0,
       caloriasBase: 20,
     },
+    {
+      nombre: "Elíptica (Home Elliptical)",
+      video: "/assets/elliptical.mov",
+      series: 1,
+      duracionSerie: 600,
+      descanso: 0,
+      caloriasBase: 90,
+    },
   ],
   domingo: [
     {
@@ -109,6 +157,14 @@ export const rutinaSemanal = {
       duracionSerie: 900,
       descanso: 0,
       caloriasBase: 15,
+    },
+    {
+      nombre: "Escaladora (Home Stepper)",
+      video: "/assets/stepper.mov",
+      series: 1,
+      duracionSerie: 600,
+      descanso: 0,
+      caloriasBase: 85,
     },
   ],
 };
