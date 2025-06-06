@@ -7,14 +7,14 @@ export default function SeriesTimer({
   duracionSerie = 60,
   descanso = 30,
   nombreEjercicio = "Ejercicio genérico",
-  caloriasBase = 0,   // kcal que quema 1 serie “base”
+  caloriasBase = 0,
   diaClave = "",
   nivel = "principiante",
   onFinish = () => {},
 }) {
   const { registrarEjercicio } = useContext(ProgressContext);
 
-  // FACTORES de nivel (igual que antes)
+  // Factores de nivel
   const factorDuracion = (nivel) => {
     switch (nivel) {
       case "principiante":
@@ -40,17 +40,16 @@ export default function SeriesTimer({
     }
   };
 
-  // Ajuste según nivel
+  // Ajustes según nivel
   const durSerieAjustada = Math.round(duracionSerie * factorDuracion(nivel));
   const descansoAjustado = Math.round(descanso * factorDuracion(nivel));
   const caloriasPorSerie = Math.round(caloriasBase * factorCalorias(nivel));
 
-  // Tiempo total esperado (solo para mostrar):  
-  // sumamos todas las series y descansos intermedios
-  const tiempoTotal—
- = series * durSerieAjustada + (series - 1) * descansoAjustado;
+  // Tiempo total (series + descansos intermedios)
+  const tiempoTotalSegundos =
+    series * durSerieAjustada + (series - 1) * descansoAjustado;
 
-  // States internos del temporizador
+  // Estados de temporizador
   const [actualSerie, setActualSerie] = useState(1);
   const [esDescanso, setEsDescanso] = useState(false);
   const [secondsLeft, setSecondsLeft] = useState(durSerieAjustada);
@@ -59,7 +58,6 @@ export default function SeriesTimer({
   const audioRef = useRef(null);
 
   useEffect(() => {
-    // Carga sonido alarma
     audioRef.current = new Audio("/assets/alarm.mp3");
   }, []);
 
@@ -76,25 +74,20 @@ export default function SeriesTimer({
   }, [running, secondsLeft]);
 
   useEffect(() => {
-    // Cuando secondsLeft baja a 0:
     if (secondsLeft === 0 && running) {
       audioRef.current.play();
-
-      // Pausar temporizador actual
       setRunning(false);
 
       if (!esDescanso) {
-        // Acabó una serie
+        // Terminó una serie
         if (actualSerie < series) {
-          // Iniciar descanso antes de la siguiente serie
+          // Iniciar descanso
           setEsDescanso(true);
           setSecondsLeft(descansoAjustado);
           setRunning(true);
         } else {
-          // Si ya era la última serie → FIN de toda la rutina
-          // Calculamos datos a registrar:
-          const duracionTotalMin = Math.round(tiempoTotal—
- / 60); // en minutos redondeados
+          // Terminó la última serie → registrar ejercicio completo
+          const duracionTotalMin = Math.round(tiempoTotalSegundos / 60);
           const caloriasTotales = caloriasPorSerie * series;
 
           registrarEjercicio(diaClave, {
@@ -104,10 +97,10 @@ export default function SeriesTimer({
             seriesCompletas: series,
           });
 
-          onFinish(); // callback externo
+          onFinish();
         }
       } else {
-        // Estábamos en descanso y va a comenzar la siguiente serie
+        // Terminó un descanso → iniciar siguiente serie
         setEsDescanso(false);
         setActualSerie((prev) => prev + 1);
         setSecondsLeft(durSerieAjustada);
@@ -127,7 +120,7 @@ export default function SeriesTimer({
     nombreEjercicio,
     registrarEjercicio,
     onFinish,
-    tiempoTotal—,
+    tiempoTotalSegundos,
   ]);
 
   const startRoutine = () => {
@@ -150,7 +143,9 @@ export default function SeriesTimer({
     <div className="bg-gray-100 p-3 rounded-md inline-block text-center">
       <div className="mb-2">
         <span className="font-medium">
-          {esDescanso ? "Descanso" : `Serie ${actualSerie} de ${series}`}
+          {esDescanso
+            ? "Descanso"
+            : `Serie ${actualSerie} de ${series}`}
         </span>
       </div>
       <div className="text-2xl font-mono mb-2">
@@ -178,9 +173,11 @@ export default function SeriesTimer({
         <p>
           {`Objetivo: ${series}×${Math.round(
             durSerieAjustada / 60
-          )} min, descanso ${Math.round(descansoAjustado)} s`}
+          )} min, descanso ${descansoAjustado} s`}
         </p>
-        <p>{`Cal. totales (est.): ${caloriasPorSerie * series} kcal`}</p>
+        <p>{`Cal. totales (est.): ${
+          caloriasPorSerie * series
+        } kcal`}</p>
       </div>
     </div>
   );
