@@ -1,82 +1,81 @@
-// src/App.jsx
-import React, { createContext, useState, useEffect } from "react";
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
-import { auth } from "./firebase";
-import { onAuthStateChanged } from "firebase/auth";
+// src/pages/Admin.jsx
+import React, { useContext, useState } from "react";
+import { UserContext } from "../context/UserContext";
+import useCollection from "../hooks/useCollection";
+import { doc, updateDoc } from "firebase/firestore";
+import { db } from "../firebase";
 
-import { UserProvider } from "./context/UserContext";
-import { GoalsProvider } from "./context/GoalsContext";
-import { ProgressProvider } from "./context/ProgressContext";
-import { AchievementsProvider } from "./context/AchievementsContext";
+export default function Admin() {
+  const { isAdmin } = useContext(UserContext);
+  const usuarios = useCollection("usuarios"); // colección de perfiles
+  const [edits, setEdits] = useState({});
 
-import Navbar from "./components/Navbar";
-import Login from "./pages/Login";
-import Register from "./pages/Register";
-import Home from "./pages/Home";
-import WeekView from "./pages/WeekView";
-import Progress from "./pages/Progress";
-import Nutrition from "./pages/Nutrition";
-import Profile from "./pages/Profile";
-import Admin from "./pages/Admin";
+  if (!isAdmin) {
+    return (
+      <div className="p-6">
+        <h1 className="text-2xl font-bold">No autorizado</h1>
+        <p>Solo los administradores pueden acceder a esta sección.</p>
+      </div>
+    );
+  }
 
-export const AppContext = createContext();
+  const handleChange = (uid, field, value) => {
+    setEdits((prev) => ({
+      ...prev,
+      [uid]: { ...prev[uid], [field]: value },
+    }));
+  };
 
-function App() {
-  const [user, setUser] = useState(null);
-  const [darkMode, setDarkMode] = useState(false);
-  const [lang, setLang] = useState("es");
-
-  // Pedir permiso de notificaciones al cargar
-  useEffect(() => {
-    if ("Notification" in window && Notification.permission === "default") {
-      Notification.requestPermission();
-    }
-  }, []);
-
-  // Observa cambios de autenticación
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (u) => {
-      setUser(u);
-    });
-    return () => unsubscribe();
-  }, []);
-
-  const toggleDarkMode = () => setDarkMode((prev) => !prev);
-  const toggleLang = () => setLang((prev) => (prev === "es" ? "en" : "es"));
+  const handleSave = async (uid) => {
+    const ref = doc(db, "usuarios", uid);
+    await updateDoc(ref, edits[uid]);
+    alert("Perfil actualizado");
+  };
 
   return (
-    <AppContext.Provider value={{ darkMode, toggleDarkMode, lang, toggleLang }}>
-      <UserProvider>
-        <GoalsProvider>
-          <ProgressProvider>
-            <AchievementsProvider>
-              <Router>
-                {user && <Navbar />}
-                <Routes>
-                  <Route path="/" element={user ? <Home /> : <Navigate to="/login" replace />} />
-                  <Route path="/login" element={!user ? <Login /> : <Navigate to="/" replace />} />
-                  <Route path="/register" element={!user ? <Register /> : <Navigate to="/" replace />} />
-                  <Route path="/semana" element={user ? <WeekView /> : <Navigate to="/login" replace />} />
-                  <Route path="/progreso" element={user ? <Progress /> : <Navigate to="/login" replace />} />
-                  <Route path="/nutricion" element={user ? <Nutrition /> : <Navigate to="/login" replace />} />
-                  <Route path="/perfil" element={user ? <Profile /> : <Navigate to="/login" replace />} />
-                  <Route
-                    path="/admin"
-                    element={
-                      user && user.email === "jotayegroupllc@gmail.com"
-                        ? <Admin />
-                        : <Navigate to="/" replace />
+    <div className="p-6 space-y-8">
+      <h1 className="text-3xl font-bold">Panel de Administración</h1>
+
+      {/* Sección de edición de usuarios */}
+      <section>
+        <h2 className="text-2xl font-semibold mb-4">Perfiles de usuarios</h2>
+        {usuarios.length === 0 && <p>No hay usuarios registrados.</p>}
+        {usuarios.map((u) => (
+          <div
+            key={u.id}
+            className="border rounded-lg p-4 mb-4 bg-white shadow-sm"
+          >
+            <p className="mb-2">
+              <strong>Email:</strong> {u.data.email}
+            </p>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {["peso", "altura", "nivel"].map((field) => (
+                <div key={field}>
+                  <label className="block text-sm font-medium capitalize mb-1">
+                    {field}
+                  </label>
+                  <input
+                    type="text"
+                    defaultValue={u.data[field] || ""}
+                    onChange={(e) =>
+                      handleChange(u.id, field, e.target.value)
                     }
+                    className="w-full border px-2 py-1 rounded focus:outline-none focus:ring"
                   />
-                  <Route path="*" element={<Navigate to={user ? "/" : "/login"} replace />} />
-                </Routes>
-              </Router>
-            </AchievementsProvider>
-          </ProgressProvider>
-        </GoalsProvider>
-      </UserProvider>
-    </AppContext.Provider>
+                </div>
+              ))}
+            </div>
+            <button
+              onClick={() => handleSave(u.id)}
+              className="mt-4 bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition"
+            >
+              Guardar cambios
+            </button>
+          </div>
+        ))}
+      </section>
+
+      {/* Aquí podrías seguir con rutinas y planes */}
+    </div>
   );
 }
-
-export default App;
