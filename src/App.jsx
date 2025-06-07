@@ -1,8 +1,9 @@
 // src/App.jsx
 import React, { createContext, useState, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
-import { initializeApp } from "firebase/app";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
+import Navbar from "./components/Navbar";
+
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Home from "./pages/Home";
@@ -11,23 +12,10 @@ import Progress from "./pages/Progress";
 import Nutrition from "./pages/Nutrition";
 import Profile from "./pages/Profile";
 import Admin from "./pages/Admin";
-import Navbar from "./components/Navbar";
+
 import { UserContextProvider } from "./context/UserContext";
+import { auth } from "./firebase";   // <–– importamos el auth ya inicializado
 
-// Inicializa Firebase
-const firebaseConfig = {
-  apiKey: "AIzaSyC7jYi0ST5rfYvfZcb8QgeMmvvVcrKDFiU",
-  authDomain: "mi-rutina-saludable.firebaseapp.com",
-  projectId: "mi-rutina-saludable",
-  storageBucket: "mi-rutina-saludable.firebasestorage.app",
-  messagingSenderId: "17810301001",
-  appId: "1:17810301001:web:a0d9b260b138c81980df98",
-  measurementId: "G-W2ZMDYK46E"
-};
-initializeApp(firebaseConfig);
-const auth = getAuth();
-
-// Contexto de la App (idioma y tema)
 export const AppContext = createContext();
 
 export default function App() {
@@ -36,15 +24,19 @@ export default function App() {
   const [darkMode, setDarkMode] = useState(false);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, u => setUser(u));
+    const unsubscribe = onAuthStateChanged(auth, (u) => setUser(u));
     return unsubscribe;
   }, []);
 
-  const toggleLang = () => setLang(l => (l === "es" ? "en" : "es"));
-  const toggleDark = () => setDarkMode(d => !d);
-
   return (
-    <AppContext.Provider value={{ lang, toggleLang, darkMode, toggleDark }}>
+    <AppContext.Provider
+      value={{
+        lang,
+        toggleLang: () => setLang((l) => (l === "es" ? "en" : "es")),
+        darkMode,
+        toggleDark: () => setDarkMode((d) => !d),
+      }}
+    >
       <UserContextProvider>
         <Router>
           <Navbar user={user} />
