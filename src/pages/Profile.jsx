@@ -1,11 +1,15 @@
 // src/pages/Profile.jsx
-import React, { useContext, useState, useEffect } from "react";
+import React, { useContext, useState } from "react";
 import { AppContext } from "../App";
 import { UserContext } from "../context/UserContext";
+import { AchievementsContext } from "../context/AchievementsContext";
+import Badge from "../components/Badge";
+import { TrophyIcon, StarIcon } from "@heroicons/react/24/solid";
 
 export default function Profile() {
   const { lang } = useContext(AppContext);
   const { profile, updateProfile } = useContext(UserContext);
+  const { unlocked, definitions } = useContext(AchievementsContext);
 
   // Form state inicializado desde profile
   const [nombre, setNombre] = useState(profile.nombre || "");
@@ -26,7 +30,6 @@ export default function Profile() {
         {lang === "es" ? "Mi Perfil" : "My Profile"}
       </h1>
       <form onSubmit={handleSubmit} className="space-y-4">
-        {/* Nombre */}
         <div>
           <label className="block font-sans mb-1">
             {lang === "es" ? "Nombre" : "Name"}
@@ -39,7 +42,6 @@ export default function Profile() {
             required
           />
         </div>
-        {/* Edad */}
         <div>
           <label className="block font-sans mb-1">
             {lang === "es" ? "Edad" : "Age"}
@@ -53,7 +55,6 @@ export default function Profile() {
             required
           />
         </div>
-        {/* Peso */}
         <div>
           <label className="block font-sans mb-1">
             {lang === "es" ? "Peso (kg)" : "Weight (kg)"}
@@ -68,7 +69,6 @@ export default function Profile() {
             required
           />
         </div>
-        {/* Altura */}
         <div>
           <label className="block font-sans mb-1">
             {lang === "es" ? "Altura (cm)" : "Height (cm)"}
@@ -82,7 +82,6 @@ export default function Profile() {
             required
           />
         </div>
-        {/* Nivel */}
         <div>
           <label className="block font-sans mb-1">
             {lang === "es" ? "Nivel" : "Level"}
@@ -92,12 +91,17 @@ export default function Profile() {
             onChange={(e) => setNivel(e.target.value)}
             className="w-full border rounded px-3 py-2"
           >
-            <option value="principiante">{lang === "es" ? "Principiante" : "Beginner"}</option>
-            <option value="intermedio">{lang === "es" ? "Intermedio" : "Intermediate"}</option>
-            <option value="avanzado">{lang === "es" ? "Avanzado" : "Advanced"}</option>
+            <option value="principiante">
+              {lang === "es" ? "Principiante" : "Beginner"}
+            </option>
+            <option value="intermedio">
+              {lang === "es" ? "Intermedio" : "Intermediate"}
+            </option>
+            <option value="avanzado">
+              {lang === "es" ? "Avanzado" : "Advanced"}
+            </option>
           </select>
         </div>
-
         <button
           type="submit"
           className="w-full bg-primary-500 hover:bg-primary-600 text-white py-2 rounded-md transition"
@@ -105,6 +109,27 @@ export default function Profile() {
           {lang === "es" ? "Guardar Perfil" : "Save Profile"}
         </button>
       </form>
+
+      {/* Insignias */}
+      <div className="mt-8">
+        <h2 className="text-xl font-serif font-semibold mb-4">
+          {lang === "es" ? "Logros" : "Achievements"}
+        </h2>
+        <div className="flex space-x-4">
+          <Badge
+            icon={<TrophyIcon className="h-6 w-6 text-yellow-500" />}
+            title={definitions.streak7.name}
+            desc={definitions.streak7.desc}
+            unlocked={!!unlocked.streak7}
+          />
+          <Badge
+            icon={<StarIcon className="h-6 w-6 text-blue-500" />}
+            title={definitions.series100.name}
+            desc={definitions.series100.desc}
+            unlocked={!!unlocked.series100}
+          />
+        </div>
+      </div>
     </div>
-  );
+);
 }
