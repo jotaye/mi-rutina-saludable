@@ -1,7 +1,6 @@
 // src/context/UserContext.jsx
 import React, { createContext, useState, useEffect } from "react";
 import {
-  getAuth,
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   sendPasswordResetEmail,
@@ -9,23 +8,18 @@ import {
   updateProfile as firebaseUpdateProfile,
   onAuthStateChanged,
 } from "firebase/auth";
+import { auth } from "../firebase";  // <–– importamos el auth inicializado
 
-const auth = getAuth();
-
-// Creamos el contexto
 export const UserContext = createContext();
 
-// Provider que envuelve la App
 export function UserContextProvider({ children }) {
   const [user, setUser] = useState(null);
   const [isAdmin, setIsAdmin] = useState(false);
 
-  // Observamos el estado de autenticación
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (u) => {
+    const unsubscribe = onAuthStateChanged(auth, (u) => {
       if (u) {
         setUser(u);
-        // Marcamos admin por correo (ajusta a tu lógica real)
         setIsAdmin(u.email === "admin@tudominio.com");
       } else {
         setUser(null);
@@ -35,7 +29,6 @@ export function UserContextProvider({ children }) {
     return unsubscribe;
   }, []);
 
-  // Funciones para registro, login, reset y logout
   const register = (email, password) =>
     createUserWithEmailAndPassword(auth, email, password);
 
