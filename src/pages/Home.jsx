@@ -7,7 +7,7 @@ import useCollection from "../hooks/useCollection";
 
 // Import estático como respaldo
 import { rutinaSemanal as rutinaLocal } from "../data/rutinaSemanal";
-import mealPlans as mealLocal from "../data/mealPlans";
+import mealLocal from "../data/mealPlans";
 
 export default function Home() {
   const { lang } = useContext(AppContext);
@@ -16,20 +16,18 @@ export default function Home() {
   const dias = ["domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado"];
   const hoy = dias[new Date().getDay()];
 
-  // Firestore
+  // Datos Firestore
   const rutinasFS = useCollection("rutinas");
   const planesFS = useCollection("mealPlans");
 
-  // Si Firestore no trae datos, usar local
-  const rutinaSem = 
-    rutinasFS.length > 0
-      ? Object.fromEntries(rutinasFS.map(d => [d.id, d.ejercicios]))
-      : rutinaLocal;
+  // Fallback a local si Firestore viene vacío
+  const rutinaSem = rutinasFS.length
+    ? Object.fromEntries(rutinasFS.map((d) => [d.id, d.ejercicios]))
+    : rutinaLocal;
 
-  const mealPlans = 
-    planesFS.length > 0
-      ? Object.fromEntries(planesFS.map(d => [d.id, d.comidas]))
-      : mealLocal;
+  const mealPlans = planesFS.length
+    ? Object.fromEntries(planesFS.map((d) => [d.id, d.comidas]))
+    : mealLocal;
 
   const ejerciciosHoy = rutinaSem[hoy] || [];
   const menuHoy = mealPlans[hoy] || [];
@@ -48,7 +46,11 @@ export default function Home() {
             ejerciciosHoy.map((ej, idx) => (
               <div key={idx} className="border rounded-lg p-6 shadow-md hover:shadow-lg transition">
                 <h2 className="text-2xl font-serif font-semibold mb-4">{ej.nombre}</h2>
-                <video src={ej.video} controls className="w-full max-w-lg mx-auto rounded-md mb-4 bg-black" />
+                <video
+                  src={ej.video}
+                  controls
+                  className="w-full max-w-lg mx-auto rounded-md mb-4 bg-black"
+                />
                 {ej.descripcion && (
                   <ol className="list-decimal list-inside text-gray-700 mb-4">
                     {ej.descripcion.map((paso, i) => (
@@ -57,8 +59,12 @@ export default function Home() {
                   </ol>
                 )}
                 <div className="mb-4 text-gray-700">
-                  <p><strong>Series:</strong> {ej.series} × {Math.round(ej.duracionSerie / 60)} min</p>
-                  <p><strong>Descanso:</strong> {ej.descanso}s</p>
+                  <p>
+                    <strong>Series:</strong> {ej.series} × {Math.round(ej.duracionSerie / 60)} min
+                  </p>
+                  <p>
+                    <strong>Descanso:</strong> {ej.descanso}s
+                  </p>
                 </div>
                 <SeriesTimer
                   series={ej.series}
@@ -84,8 +90,15 @@ export default function Home() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {menuHoy.map((c, i) => (
-              <div key={i} className="bg-white rounded-lg shadow-md hover:shadow-lg transition overflow-hidden">
-                <img src={c.img} alt={c.nombre} className="w-full h-48 object-cover rounded-t-lg" />
+              <div
+                key={i}
+                className="bg-white rounded-lg shadow-md hover:shadow-lg transition overflow-hidden"
+              >
+                <img
+                  src={c.img}
+                  alt={c.nombre}
+                  className="w-full h-48 object-cover rounded-t-lg"
+                />
                 <div className="p-4">
                   <h3 className="text-xl font-serif font-semibold mb-2">{c.nombre}</h3>
                   <p className="font-sans text-gray-700">{c.texto}</p>
