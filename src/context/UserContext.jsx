@@ -25,14 +25,25 @@ export function UserProvider({ children }) {
   const isAdmin = user?.email === ADMIN_EMAIL;
 
   useEffect(() => {
-    const unsub = onAuthStateChanged(auth, (u) => {
+    const unsubscribe = onAuthStateChanged(auth, (u) => {
       setUser(u);
-      // Si tienes profile guardado en Firestore, cárgalo aquí
+      // Si persistes profile en Firestore, cárgalo aquí
     });
-    return () => unsub();
+    return () => unsubscribe();
   }, []);
 
-  // … funciones login, register, logout, updateProfile …
+  const register = (email, password) =>
+    createUserWithEmailAndPassword(auth, email, password);
+
+  const login = (email, password) =>
+    signInWithEmailAndPassword(auth, email, password);
+
+  const logOut = () => signOut(auth);
+
+  const updateProfile = (data) => {
+    setProfile((prev) => ({ ...prev, ...data }));
+    // Si guardas profile en Firestore, hazlo aquí
+  };
 
   return (
     <UserContext.Provider
@@ -41,7 +52,9 @@ export function UserProvider({ children }) {
         profile,
         updateProfile,
         logOut,
-+       isAdmin,
+        isAdmin,
+        register,
+        login,
       }}
     >
       {children}
