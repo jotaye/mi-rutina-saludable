@@ -4,83 +4,72 @@ import React, { createContext, useState, useEffect } from "react";
 export const ProgressContext = createContext();
 
 export function ProgressProvider({ children }) {
-  const initialProgress = {};
+  const [progress, setProgress] = useState(() => {
+    const saved = localStorage.getItem("progress");
+    return saved ? JSON.parse(saved) : {};
+  });
+  const [lastActivity, setLastActivity] = useState(
+    () => localStorage.getItem("lastActivity") || null
+  );
 
-  const [progress, setProgress] = useState(initialProgress);
-
-  // Carga desde localStorage
+  // Guardar progreso
   useEffect(() => {
-    const stored = localStorage.getItem("miRutinaProgreso");
-    if (stored) {
-      try {
-        setProgress(JSON.parse(stored));
-      } catch {
-        setProgress(initialProgress);
-      }
-    }
-  }, []);
-
-  // Guarda en localStorage al cambiar
-  useEffect(() => {
-    localStorage.setItem("miRutinaProgreso", JSON.stringify(progress));
+    localStorage.setItem("progress", JSON.stringify(progress));
   }, [progress]);
 
-  /**
-   * Registra un ejercicio COMPLETO (todas las series)
-   *
-   * @param {string} diaClave  
-   * @param {object} registroEjercicio  - {
-   *    nombreEjercicio: string,
-   *    calorias: number,      // calorías totales
-   *    duracionMin: number,   // minutos totales
-   *    seriesCompletas: number // número de series
-   * }
-   */
-  function registrarEjercicio(diaClave, registroEjercicio) {
+  // Registrar ejercicio
+  const registrarEjercicio = (dia, registro) => {
     setProgress((prev) => {
-      const copia = { ...prev };
-      const fechaExacta = new Date().toISOString();
-
-      if (!copia[diaClave]) {
-        copia[diaClave] = { registros: [] };
-      }
-
-      const registrosHoy = copia[diaClave].registros;
-      const mismasVeces = registrosHoy.filter(
-        (r) => r.nombreEjercicio === registroEjercicio.nombreEjercicio
-      ).length;
-      const secuencia = mismasVeces + 1;
-
-      const nuevoRegistro = {
-        fechaExacta,
-        nombreEjercicio: registroEjercicio.nombreEjercicio,
-        calorias: registroEjercicio.calorias,
-        duracionMin: registroEjercicio.duracionMin,
-        seriesCompletas: registroEjercicio.seriesCompletas,
-        secuencia,
+      const prevDia = prev[dia] || { registros: [] };
+      const updatedDia = {
+        registros: [
+          ...prevDia.registros,
+          {
+            ...registro,
+            fechaExacta: new Date().toISOString(),
+            secuencia: prevDia.registros.length + 1,
+          },
+        ],
       };
-
-      copia[diaClave].registros = [...registrosHoy, nuevoRegistro];
-      return copia;
+      // Actualiza última actividad
+      const now = new Date().toISOString();
+      setLastActivity(now);
+      localStorage.setItem("lastActivity", now);
+      return { ...prev, [dia]: updatedDia };
     });
-  }
-
-  function reiniciarDia(diaClave) {
-    setProgress((prev) => {
-      const copia = { ...prev };
-      delete copia[diaClave];
-      return copia;
-    });
-  }
-
-  const value = {
-    progress,
-    registrarEjercicio,
-    reiniciarDia,
   };
 
+  // Reiniciar día
+  const reiniciarDia = (dia) => {
+    setProgress((prev) => {
+      const updated = { ...prev };
+      delete updated[dia];
+      return updated;
+    });
+  };
+
+  // Notificación si pasan 24h sin actividad
+  useEffect(() => {
+    if (!lastActivity) return;
+    const scheduleCheck = () => {
+      const then = new Date(lastActivity).getTime();
+      const diff = Date.now() - then;
+      const ms24h = 24 * 60 * 60 * 1000;
+      if (diff >= ms24h && Notification.permission === "granted") {
+        new Notification("🔔 ¡Hora de moverte!", {
+          body: "No registras ejercicio en más de 24 horas.",
+        });
+      } else if (diff < ms24h) {
+        setTimeout(scheduleCheck, ms24h - diff);
+      }
+    };
+    scheduleCheck();
+  }, [lastActivity]);
+
   return (
-    <ProgressContext.Provider value={value}>
+    <ProgressContext.Provider
+      value={{ progress, registrarEjercicio, reiniciarDia }}
+    >
       {children}
     </ProgressContext.Provider>
   );
