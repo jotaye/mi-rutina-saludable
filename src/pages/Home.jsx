@@ -5,6 +5,10 @@ import { UserContext } from "../context/UserContext";
 import SeriesTimer from "../components/SeriesTimer";
 import useCollection from "../hooks/useCollection";
 
+// Import estático como respaldo
+import { rutinaSemanal as rutinaLocal } from "../data/rutinaSemanal";
+import mealPlans as mealLocal from "../data/mealPlans";
+
 export default function Home() {
   const { lang } = useContext(AppContext);
   const { profile } = useContext(UserContext);
@@ -12,14 +16,22 @@ export default function Home() {
   const dias = ["domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado"];
   const hoy = dias[new Date().getDay()];
 
-  // Datos desde Firestore
-  const rutinas = useCollection("rutinas");
-  const planes = useCollection("mealPlans");
+  // Firestore
+  const rutinasFS = useCollection("rutinas");
+  const planesFS = useCollection("mealPlans");
 
-  const rutinaSemanal = Object.fromEntries(rutinas.map((d) => [d.id, d.ejercicios]));
-  const mealPlans = Object.fromEntries(planes.map((d) => [d.id, d.comidas]));
+  // Si Firestore no trae datos, usar local
+  const rutinaSem = 
+    rutinasFS.length > 0
+      ? Object.fromEntries(rutinasFS.map(d => [d.id, d.ejercicios]))
+      : rutinaLocal;
 
-  const ejerciciosHoy = rutinaSemanal[hoy] || [];
+  const mealPlans = 
+    planesFS.length > 0
+      ? Object.fromEntries(planesFS.map(d => [d.id, d.comidas]))
+      : mealLocal;
+
+  const ejerciciosHoy = rutinaSem[hoy] || [];
   const menuHoy = mealPlans[hoy] || [];
 
   return (
@@ -45,12 +57,8 @@ export default function Home() {
                   </ol>
                 )}
                 <div className="mb-4 text-gray-700">
-                  <p>
-                    <strong>Series:</strong> {ej.series} × {Math.round(ej.duracionSerie / 60)} min
-                  </p>
-                  <p>
-                    <strong>Descanso:</strong> {ej.descanso}s
-                  </p>
+                  <p><strong>Series:</strong> {ej.series} × {Math.round(ej.duracionSerie / 60)} min</p>
+                  <p><strong>Descanso:</strong> {ej.descanso}s</p>
                 </div>
                 <SeriesTimer
                   series={ej.series}
@@ -88,7 +96,7 @@ export default function Home() {
         )}
       </div>
 
-      {/* Navegación rápida */}
+      {/* Navegación */}
       <div className="mt-8">
         <a href="/semana" className="text-primary-500 hover:underline mr-6 transition">
           Ver toda la semana
@@ -98,5 +106,5 @@ export default function Home() {
         </a>
       </div>
     </div>
-);
+  );
 }
