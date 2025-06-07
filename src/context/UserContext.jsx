@@ -1,44 +1,49 @@
 // src/context/UserContext.jsx
 import React, { createContext, useState, useEffect } from "react";
+import { auth } from "../firebase";
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  signOut,
+  onAuthStateChanged,
+} from "firebase/auth";
 
 export const UserContext = createContext();
 
 export function UserProvider({ children }) {
-  // Ahora incluimos "nivel" como parte del perfil
-  const initialProfile = {
+  const [user, setUser] = useState(null);
+  const [profile, setProfile] = useState({
     nombre: "",
     edad: "",
     peso: "",
     altura: "",
-    tipoDiabetes: "1",      // "1" o "2"
-    nivel: "principiante",  // "principiante" | "intermedio" | "avanzado"
-  };
+    nivel: "principiante",
+  });
 
-  const [profile, setProfile] = useState(initialProfile);
+  // Define aquí tu email de admin
+  const ADMIN_EMAIL = "tu-email@dominio.com";
+  const isAdmin = user?.email === ADMIN_EMAIL;
 
-  // Carga desde localStorage
   useEffect(() => {
-    const stored = localStorage.getItem("miRutinaPerfil");
-    if (stored) {
-      try {
-        setProfile(JSON.parse(stored));
-      } catch {
-        setProfile(initialProfile);
-      }
-    }
+    const unsub = onAuthStateChanged(auth, (u) => {
+      setUser(u);
+      // Si tienes profile guardado en Firestore, cárgalo aquí
+    });
+    return () => unsub();
   }, []);
 
-  // Guarda en localStorage siempre que cambie
-  useEffect(() => {
-    localStorage.setItem("miRutinaPerfil", JSON.stringify(profile));
-  }, [profile]);
-
-  const updateProfile = (nuevosDatos) => {
-    setProfile((prev) => ({ ...prev, ...nuevosDatos }));
-  };
+  // … funciones login, register, logout, updateProfile …
 
   return (
-    <UserContext.Provider value={{ profile, updateProfile }}>
+    <UserContext.Provider
+      value={{
+        user,
+        profile,
+        updateProfile,
+        logOut,
++       isAdmin,
+      }}
+    >
       {children}
     </UserContext.Provider>
   );
