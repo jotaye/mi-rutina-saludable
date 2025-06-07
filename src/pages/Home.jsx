@@ -12,6 +12,7 @@ export default function Home() {
   const dias = ["domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado"];
   const hoy = dias[new Date().getDay()];
 
+  // Datos desde Firestore
   const rutinas = useCollection("rutinas");
   const planes = useCollection("mealPlans");
 
@@ -23,6 +24,7 @@ export default function Home() {
 
   return (
     <div className="p-6 space-y-10">
+      {/* Rutina de hoy */}
       <div>
         <h1 className="text-3xl font-serif font-bold mb-4 capitalize">
           {`Mi rutina de hoy (${hoy})`}
@@ -37,12 +39,18 @@ export default function Home() {
                 <video src={ej.video} controls className="w-full max-w-lg mx-auto rounded-md mb-4 bg-black" />
                 {ej.descripcion && (
                   <ol className="list-decimal list-inside text-gray-700 mb-4">
-                    {ej.descripcion.map((paso, i) => (<li key={i}>{paso}</li>))}
+                    {ej.descripcion.map((paso, i) => (
+                      <li key={i}>{paso}</li>
+                    ))}
                   </ol>
                 )}
                 <div className="mb-4 text-gray-700">
-                  <p><strong>Series:</strong> {ej.series} × {Math.round(ej.duracionSerie/60)} min</p>
-                  <p><strong>Descanso:</strong> {ej.descanso}s</p>
+                  <p>
+                    <strong>Series:</strong> {ej.series} × {Math.round(ej.duracionSerie / 60)} min
+                  </p>
+                  <p>
+                    <strong>Descanso:</strong> {ej.descanso}s
+                  </p>
                 </div>
                 <SeriesTimer
                   series={ej.series}
@@ -60,9 +68,10 @@ export default function Home() {
         </div>
       </div>
 
+      {/* Plan alimenticio de hoy */}
       <div>
         <h2 className="text-2xl font-serif font-bold mb-6">Plan alimenticio para hoy</h2>
-        {menuHoy.length===0 ? (
+        {menuHoy.length === 0 ? (
           <p className="font-sans text-gray-500">No hay plan alimenticio para hoy.</p>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -79,10 +88,15 @@ export default function Home() {
         )}
       </div>
 
+      {/* Navegación rápida */}
       <div className="mt-8">
-        <a href="/semana" className="text-primary-500 hover:underline mr-6 transition">Ver toda la semana</a>
-        <a href="/nutricion" className="text-primary-500 hover:underline transition">Ir a Nutrición</a>
+        <a href="/semana" className="text-primary-500 hover:underline mr-6 transition">
+          Ver toda la semana
+        </a>
+        <a href="/nutricion" className="text-primary-500 hover:underline transition">
+          Ir a Nutrición
+        </a>
       </div>
     </div>
-  );
+);
 }
