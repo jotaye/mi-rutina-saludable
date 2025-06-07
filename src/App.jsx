@@ -1,13 +1,12 @@
 // src/App.jsx
-import React, { useState, useEffect, createContext } from "react";
+import React, { useState, createContext } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
-import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { getAuth } from "firebase/auth";
 
 // Context Providers
-import { UserProvider } from "./context/UserContext";
-export const AppContext = createContext();
+import { UserProvider, UserContext } from "./context/UserContext";
 
 // Pages
 import Home from "./pages/Home";
@@ -36,8 +35,9 @@ const firebaseConfig = {
 
 initializeApp(firebaseConfig);
 getAnalytics();
-
 const auth = getAuth();
+
+export const AppContext = createContext();
 
 function App() {
   const [lang, setLang] = useState("es");
@@ -49,17 +49,63 @@ function App() {
         <Router>
           <Navbar />
           <Routes>
+            {/* Rutas públicas */}
             <Route path="/login" element={<Login />} />
             <Route path="/registro" element={<Register />} />
             <Route path="/reset" element={<ResetPassword />} />
 
-            <Route path="/" element={<PrivateRoute><Home /></PrivateRoute>} />
-            <Route path="/semana" element={<PrivateRoute><WeekView /></PrivateRoute>} />
-            <Route path="/progreso" element={<PrivateRoute><Progress /></PrivateRoute>} />
-            <Route path="/nutricion" element={<PrivateRoute><Nutrition /></PrivateRoute>} />
-            <Route path="/perfil" element={<PrivateRoute><Profile /></PrivateRoute>} />
-            <Route path="/admin" element={<PrivateRoute requireAdmin><Admin /></PrivateRoute>} />
+            {/* Rutas privadas */}
+            <Route
+              path="/"
+              element={
+                <PrivateRoute>
+                  <Home />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/semana"
+              element={
+                <PrivateRoute>
+                  <WeekView />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/progreso"
+              element={
+                <PrivateRoute>
+                  <Progress />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/nutricion"
+              element={
+                <PrivateRoute>
+                  <Nutrition />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/perfil"
+              element={
+                <PrivateRoute>
+                  <Profile />
+                </PrivateRoute>
+              }
+            />
+            {/* Ruta sólo para admin */}
+            <Route
+              path="/admin"
+              element={
+                <PrivateRoute requireAdmin>
+                  <Admin />
+                </PrivateRoute>
+              }
+            />
 
+            {/* Cualquier otra ruta redirige a inicio */}
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </Router>
@@ -68,7 +114,7 @@ function App() {
   );
 }
 
-// Helper to protect routes
+// Componente envoltorio para proteger rutas
 function PrivateRoute({ children, requireAdmin = false }) {
   const { user, isAdmin } = React.useContext(UserContext);
 
