@@ -1,7 +1,7 @@
 // src/hooks/useCollection.js
 import { useState, useEffect } from "react";
 import { collection, onSnapshot, query, orderBy } from "firebase/firestore";
-import { db } from "../firebase";   // <–– ahora existe db
+import { db } from "../firebase";
 
 export default function useCollection(collName, orderField = null) {
   const [docs, setDocs] = useState([]);
@@ -11,12 +11,16 @@ export default function useCollection(collName, orderField = null) {
     if (orderField) {
       q = query(q, orderBy(orderField));
     }
-    const unsub = onSnapshot(q, (snapshot) => {
-      const results = [];
-      snapshot.forEach((doc) => results.push({ id: doc.id, ...doc.data() }));
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const results = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
       setDocs(results);
     });
-    return () => unsub();
+
+    return () => unsubscribe();
   }, [collName, orderField]);
 
   return docs;
