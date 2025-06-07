@@ -21,7 +21,7 @@ export function UserProvider({ children }) {
   });
 
   // Define aquí tu email de admin
-  const ADMIN_EMAIL = "tu-email@dominio.com";
+  const ADMIN_EMAIL = "jotayegroupllc@gmail.com";
   const isAdmin = user?.email === ADMIN_EMAIL;
 
   useEffect(() => {
