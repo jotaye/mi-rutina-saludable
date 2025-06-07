@@ -1,100 +1,76 @@
 // src/pages/Login.jsx
-import React, { useState, useContext } from "react";
-import { signInWithEmailAndPassword, getAuth } from "firebase/auth";
-import { useNavigate } from "react-router-dom";
-import { AppContext } from "../App";
+import React, { useState } from "react";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { auth } from "../firebase";
 
 export default function Login() {
-  const auth = getAuth();
-  const navigate = useNavigate();
-  const { lang } = useContext(AppContext);
-
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [errorMsg, setErrorMsg] = useState("");
+  const [error, setError] = useState("");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setErrorMsg("");
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      navigate("/"); // Al iniciar sesión, redirige a Home
-    } catch (error) {
-      // Mostrar mensaje de error en español / inglés según lang
-      if (lang === "es") {
-        setErrorMsg(`Error de Firebase: ${error.message}`);
-      } else {
-        setErrorMsg(`Firebase Error: ${error.message}`);
-      }
+      // redirige a "/"
+    } catch (err) {
+      setError(err.message);
     }
   };
 
   return (
-    <div className="relative h-screen w-full">
-      {/* Video de fondo */}
-      <video
-        src="/assets/intro.mov"
-        autoPlay
-        loop
-        muted
-        playsInline
-        className="absolute top-0 left-0 w-full h-full object-cover"
+    <div className="min-h-screen flex items-center justify-center bg-gray-100">
+      <form
+        onSubmit={handleSubmit}
+        className="bg-white p-8 rounded shadow-md w-full max-w-sm"
       >
-        Tu navegador no soporta reproducir este video.
-      </video>
+        <h2 className="text-2xl font-bold mb-4 text-center">Iniciar sesión</h2>
 
-      {/* Capa translúcida para oscurecer ligeramente el video (opcional) */}
-      <div className="absolute top-0 left-0 w-full h-full bg-black/40"></div>
+        {error && (
+          <p className="text-sm text-red-600 mb-4 text-center">{error}</p>
+        )}
 
-      {/* Contenedor del formulario, encima del video */}
-      <div className="relative z-10 flex items-center justify-center h-full">
-        <div className="bg-white/95 p-6 rounded-lg shadow-md w-full max-w-sm">
-          <h2 className="text-2xl font-bold mb-4 text-center text-gray-800">
-            {lang === "es" ? "Iniciar sesión" : "Log In"}
-          </h2>
-          {errorMsg && (
-            <p className="text-red-500 text-sm mb-2">{errorMsg}</p>
-          )}
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="block text-gray-700">
-                {lang === "es" ? "Correo electrónico" : "Email"}
-              </label>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring focus:border-blue-300"
-              />
-            </div>
-            <div>
-              <label className="block text-gray-700">
-                {lang === "es" ? "Contraseña" : "Password"}
-              </label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring focus:border-blue-300"
-              />
-            </div>
-            <button
-              type="submit"
-              className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700"
-            >
-              {lang === "es" ? "Ingresar" : "Log In"}
-            </button>
-          </form>
-          <p className="text-center text-sm text-gray-500 mt-4">
-            {lang === "es" ? "¿No tienes cuenta?" : "Don’t have an account?"}{" "}
-            <a href="/registro" className="text-blue-600 hover:underline">
-              {lang === "es" ? "Regístrate" : "Sign Up"}
-            </a>
-          </p>
-        </div>
-      </div>
+        <label className="block text-sm mb-1">Correo electrónico</label>
+        <input
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+          className="w-full border px-3 py-2 rounded mb-4 focus:outline-none focus:ring"
+        />
+
+        <label className="block text-sm mb-1">Contraseña</label>
+        <input
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+          className="w-full border px-3 py-2 rounded mb-4 focus:outline-none focus:ring"
+        />
+
+        <p className="text-right mb-4">
+          <a
+            href="/reset"
+            className="text-blue-600 hover:underline text-sm"
+          >
+            ¿Olvidaste tu contraseña?
+          </a>
+        </p>
+
+        <button
+          type="submit"
+          className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition"
+        >
+          Ingresar
+        </button>
+
+        <p className="text-center text-sm text-gray-500 mt-4">
+          ¿No tienes cuenta?{" "}
+          <a href="/registro" className="text-blue-600 hover:underline">
+            Regístrate
+          </a>
+        </p>
+      </form>
     </div>
   );
 }
