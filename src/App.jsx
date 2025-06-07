@@ -1,81 +1,95 @@
-// src/pages/Admin.jsx
-import React, { useContext, useState } from "react";
-import { UserContext } from "../context/UserContext";
-import useCollection from "../hooks/useCollection";
-import { doc, updateDoc } from "firebase/firestore";
-import { db } from "../firebase";
+// src/App.jsx
+import React, { useState, useEffect, createContext } from "react";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { initializeApp } from "firebase/app";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
+import Home from "./pages/Home";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import WeekView from "./pages/WeekView";
+import Progress from "./pages/Progress";
+import Nutrition from "./pages/Nutrition";
+import Profile from "./pages/Profile";
+import Admin from "./pages/Admin";
+import ResetPassword from "./pages/ResetPassword";
+import Navbar from "./components/Navbar";
+import { getAnalytics } from "firebase/analytics";
 
-export default function Admin() {
-  const { isAdmin } = useContext(UserContext);
-  const usuarios = useCollection("usuarios"); // colección de perfiles
-  const [edits, setEdits] = useState({});
+// ---- Firebase config ----
+const firebaseConfig = {
+  apiKey: "AIzaSyC7jYi0ST5rfYvfZcb8QgeMmvvVcrKDFiU",
+  authDomain: "mi-rutina-saludable.firebaseapp.com",
+  projectId: "mi-rutina-saludable",
+  storageBucket: "mi-rutina-saludable.firebasestorage.app",
+  messagingSenderId: "17810301001",
+  appId: "1:17810301001:web:a0d9b260b138c81980df98",
+  measurementId: "G-W2ZMDYK46E"
+};
 
-  if (!isAdmin) {
-    return (
-      <div className="p-6">
-        <h1 className="text-2xl font-bold">No autorizado</h1>
-        <p>Solo los administradores pueden acceder a esta sección.</p>
-      </div>
-    );
-  }
+initializeApp(firebaseConfig);
+getAnalytics();
 
-  const handleChange = (uid, field, value) => {
-    setEdits((prev) => ({
-      ...prev,
-      [uid]: { ...prev[uid], [field]: value },
-    }));
-  };
+const auth = getAuth();
 
-  const handleSave = async (uid) => {
-    const ref = doc(db, "usuarios", uid);
-    await updateDoc(ref, edits[uid]);
-    alert("Perfil actualizado");
-  };
+export const AppContext = createContext();
+
+function App() {
+  const [user, setUser] = useState(null);
+  const [lang, setLang] = useState("es");
+
+  useEffect(() => {
+    const unsub = onAuthStateChanged(auth, (u) => setUser(u));
+    return () => unsub();
+  }, []);
+
+  const toggleLang = () => setLang((l) => (l === "es" ? "en" : "es"));
 
   return (
-    <div className="p-6 space-y-8">
-      <h1 className="text-3xl font-bold">Panel de Administración</h1>
-
-      {/* Sección de edición de usuarios */}
-      <section>
-        <h2 className="text-2xl font-semibold mb-4">Perfiles de usuarios</h2>
-        {usuarios.length === 0 && <p>No hay usuarios registrados.</p>}
-        {usuarios.map((u) => (
-          <div
-            key={u.id}
-            className="border rounded-lg p-4 mb-4 bg-white shadow-sm"
-          >
-            <p className="mb-2">
-              <strong>Email:</strong> {u.data.email}
-            </p>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {["peso", "altura", "nivel"].map((field) => (
-                <div key={field}>
-                  <label className="block text-sm font-medium capitalize mb-1">
-                    {field}
-                  </label>
-                  <input
-                    type="text"
-                    defaultValue={u.data[field] || ""}
-                    onChange={(e) =>
-                      handleChange(u.id, field, e.target.value)
-                    }
-                    className="w-full border px-2 py-1 rounded focus:outline-none focus:ring"
-                  />
-                </div>
-              ))}
-            </div>
-            <button
-              onClick={() => handleSave(u.id)}
-              className="mt-4 bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition"
-            >
-              Guardar cambios
-            </button>
-          </div>
-        ))}
-      </section>
-
-      {/* Aquí podrías seguir con rutinas y planes */}
-    </div>
+    <AppContext.Provider value={{ lang, toggleLang }}>
+      <Router>
+        {user && <Navbar />}
+        <Routes>
+          <Route
+            path="/"
+            element={user ? <Home /> : <Navigate to="/login" replace />}
+          />
+          <Route
+            path="/login"
+            element={!user ? <Login /> : <Navigate to="/" replace />}
+          />
+          <Route
+            path="/registro"
+            element={!user ? <Register /> : <Navigate to="/" replace />}
+          />
+          <Route
+            path="/reset"
+            element={!user ? <ResetPassword /> : <Navigate to="/" replace />}
+          />
+          <Route
+            path="/semana"
+            element={user ? <WeekView /> : <Navigate to="/login" replace />}
+          />
+          <Route
+            path="/progreso"
+            element={user ? <Progress /> : <Navigate to="/login" replace />}
+          />
+          <Route
+            path="/nutricion"
+            element={user ? <Nutrition /> : <Navigate to="/login" replace />}
+          />
+          <Route
+            path="/perfil"
+            element={user ? <Profile /> : <Navigate to="/login" replace />}
+          />
+          <Route
+            path="/admin"
+            element={user ? <Admin /> : <Navigate to="/login" replace />}
+          />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </Router>
+    </AppContext.Provider>
   );
 }
+
+export default App;
