@@ -9,8 +9,10 @@ export default function WeekView() {
   const { lang } = useContext(AppContext);
   const { profile } = useContext(UserContext);
 
+  // Carga rutinas desde Firestore
   const rutinas = useCollection("rutinas");
   const rutinaSemanal = Object.fromEntries(rutinas.map((d) => [d.id, d.ejercicios]));
+
   const diasOrden = ["lunes", "martes", "miércoles", "jueves", "viernes", "sábado", "domingo"];
 
   return (
@@ -25,7 +27,9 @@ export default function WeekView() {
                 <video src={ej.video} controls className="w-full h-40 object-cover bg-black" />
                 <div className="p-4">
                   <h3 className="text-lg font-serif font-semibold">{ej.nombre}</h3>
-                  <p className="text-sm text-gray-600 mb-2">Series: {ej.series} × {Math.round(ej.duracionSerie/60)} min</p>
+                  <p className="text-sm text-gray-600 mb-2">
+                    Series: {ej.series} × {Math.round(ej.duracionSerie / 60)} min
+                  </p>
                   <p className="text-sm text-gray-600 mb-4">Descanso: {ej.descanso} s</p>
                   <SeriesTimer
                     series={ej.series}
@@ -44,5 +48,5 @@ export default function WeekView() {
         </div>
       ))}
     </div>
-  );
+);
 }
