@@ -1,13 +1,18 @@
 // src/components/Navbar.jsx
-import React, { useContext } from "react";
+import React, { useContext, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { AppContext } from "../App";
 import { UserContext } from "../context/UserContext";
 
 export default function Navbar() {
   const { lang, toggleLang } = useContext(AppContext);
-  const { isAdmin, logOut } = useContext(UserContext);
+  const { isAdmin, logOut, user } = useContext(UserContext);
   const location = useLocation();
+
+  // DEBUG
+  useEffect(() => {
+    console.log("Navbar → user:", user?.email, "isAdmin:", isAdmin);
+  }, [user, isAdmin]);
 
   const links = [
     { to: "/", label: lang === "es" ? "Hoy" : "Today" },
@@ -15,7 +20,7 @@ export default function Navbar() {
     { to: "/progreso", label: lang === "es" ? "Progreso" : "Progress" },
     { to: "/nutricion", label: lang === "es" ? "Nutrición" : "Nutrition" },
     { to: "/perfil", label: lang === "es" ? "Perfil" : "Profile" },
-    // Solo mostrar Admin si el usuario es admin
+    // Solo mostramos Admin si isAdmin === true
     ...(isAdmin ? [{ to: "/admin", label: "Admin" }] : []),
   ];
 
@@ -23,12 +28,9 @@ export default function Navbar() {
     <nav className="bg-white dark:bg-gray-800 shadow-md">
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex justify-between h-16 items-center">
-          {/* Logo o título */}
           <Link to="/" className="text-2xl font-serif font-bold text-primary-600">
             MiRutina
           </Link>
-
-          {/* Enlaces y botones */}
           <div className="flex items-center space-x-4">
             {links.map((link) => (
               <Link
@@ -43,16 +45,12 @@ export default function Navbar() {
                 {link.label}
               </Link>
             ))}
-
-            {/* Alternar idioma */}
             <button
               onClick={toggleLang}
               className="ml-4 text-sm font-sans text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition"
             >
               {lang === "es" ? "EN" : "ES"}
             </button>
-
-            {/* Cerrar sesión */}
             <button
               onClick={logOut}
               className="ml-4 text-sm font-sans text-red-600 hover:text-red-800 transition"
