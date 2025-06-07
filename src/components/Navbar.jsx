@@ -6,7 +6,7 @@ import { UserContext } from "../context/UserContext";
 
 export default function Navbar() {
   const { lang, toggleLang } = useContext(AppContext);
-  const { logOut } = useContext(UserContext);
+  const { isAdmin, logOut } = useContext(UserContext);
   const location = useLocation();
 
   const links = [
@@ -15,6 +15,8 @@ export default function Navbar() {
     { to: "/progreso", label: lang === "es" ? "Progreso" : "Progress" },
     { to: "/nutricion", label: lang === "es" ? "Nutrición" : "Nutrition" },
     { to: "/perfil", label: lang === "es" ? "Perfil" : "Profile" },
+    // Solo mostrar Admin si el usuario es admin
+    ...(isAdmin ? [{ to: "/admin", label: "Admin" }] : []),
   ];
 
   return (
@@ -26,8 +28,8 @@ export default function Navbar() {
             MiRutina
           </Link>
 
-          {/* Links */}
-          <div className="space-x-4 flex items-center">
+          {/* Enlaces y botones */}
+          <div className="flex items-center space-x-4">
             {links.map((link) => (
               <Link
                 key={link.to}
