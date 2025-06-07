@@ -7,6 +7,7 @@ import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { UserProvider } from "./context/UserContext";
 import { GoalsProvider } from "./context/GoalsContext";
 import { ProgressProvider } from "./context/ProgressContext";
+import { AchievementsProvider } from "./context/AchievementsContext";
 
 import Navbar from "./components/Navbar";
 import Login from "./pages/Login";
@@ -37,6 +38,13 @@ function App() {
   const [darkMode, setDarkMode] = useState(false);
   const [lang, setLang] = useState("es");
 
+  // Solicita permiso de notificaciones al inicio
+  useEffect(() => {
+    if ("Notification" in window && Notification.permission === "default") {
+      Notification.requestPermission();
+    }
+  }, []);
+
   // Observa cambios de autenticación
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (u) => {
@@ -53,45 +61,45 @@ function App() {
       <UserProvider>
         <GoalsProvider>
           <ProgressProvider>
-            <Router>
-              {user && (
-                <Navbar />
-              )}
-              <Routes>
-                <Route
-                  path="/"
-                  element={user ? <Home /> : <Navigate to="/login" replace />}
-                />
-                <Route
-                  path="/login"
-                  element={!user ? <Login /> : <Navigate to="/" replace />}
-                />
-                <Route
-                  path="/register"
-                  element={!user ? <Register /> : <Navigate to="/" replace />}
-                />
-                <Route
-                  path="/semana"
-                  element={user ? <WeekView /> : <Navigate to="/login" replace />}
-                />
-                <Route
-                  path="/progreso"
-                  element={user ? <Progress /> : <Navigate to="/login" replace />}
-                />
-                <Route
-                  path="/nutricion"
-                  element={user ? <Nutrition /> : <Navigate to="/login" replace />}
-                />
-                <Route
-                  path="/perfil"
-                  element={user ? <Profile /> : <Navigate to="/login" replace />}
-                />
-                <Route
-                  path="*"
-                  element={<Navigate to={user ? "/" : "/login"} replace />}
-                />
-              </Routes>
-            </Router>
+            <AchievementsProvider>
+              <Router>
+                {user && <Navbar />}
+                <Routes>
+                  <Route
+                    path="/"
+                    element={user ? <Home /> : <Navigate to="/login" replace />}
+                  />
+                  <Route
+                    path="/login"
+                    element={!user ? <Login /> : <Navigate to="/" replace />}
+                  />
+                  <Route
+                    path="/register"
+                    element={!user ? <Register /> : <Navigate to="/" replace />}
+                  />
+                  <Route
+                    path="/semana"
+                    element={user ? <WeekView /> : <Navigate to="/login" replace />}
+                  />
+                  <Route
+                    path="/progreso"
+                    element={user ? <Progress /> : <Navigate to="/login" replace />}
+                  />
+                  <Route
+                    path="/nutricion"
+                    element={user ? <Nutrition /> : <Navigate to="/login" replace />}
+                  />
+                  <Route
+                    path="/perfil"
+                    element={user ? <Profile /> : <Navigate to="/login" replace />}
+                  />
+                  <Route
+                    path="*"
+                    element={<Navigate to={user ? "/" : "/login"} replace />}
+                  />
+                </Routes>
+              </Router>
+            </AchievementsProvider>
           </ProgressProvider>
         </GoalsProvider>
       </UserProvider>
