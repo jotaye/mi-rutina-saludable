@@ -17,6 +17,7 @@ import WeekView from "./pages/WeekView";
 import Progress from "./pages/Progress";
 import Nutrition from "./pages/Nutrition";
 import Profile from "./pages/Profile";
+import Admin from "./pages/Admin";
 
 export const AppContext = createContext();
 
@@ -25,14 +26,14 @@ function App() {
   const [darkMode, setDarkMode] = useState(false);
   const [lang, setLang] = useState("es");
 
-  // Pedir permiso de notificaciones
+  // Pedir permiso de notificaciones al cargar
   useEffect(() => {
     if ("Notification" in window && Notification.permission === "default") {
       Notification.requestPermission();
     }
   }, []);
 
-  // Listener de autenticación
+  // Observa cambios de autenticación
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (u) => {
       setUser(u);
@@ -59,6 +60,14 @@ function App() {
                   <Route path="/progreso" element={user ? <Progress /> : <Navigate to="/login" replace />} />
                   <Route path="/nutricion" element={user ? <Nutrition /> : <Navigate to="/login" replace />} />
                   <Route path="/perfil" element={user ? <Profile /> : <Navigate to="/login" replace />} />
+                  <Route
+                    path="/admin"
+                    element={
+                      user && user.email === "jotayegroupllc@gmail.com"
+                        ? <Admin />
+                        : <Navigate to="/" replace />
+                    }
+                  />
                   <Route path="*" element={<Navigate to={user ? "/" : "/login"} replace />} />
                 </Routes>
               </Router>
