@@ -2,68 +2,65 @@
 import React, { createContext, useState, useEffect } from "react";
 import {
   getAuth,
-  onAuthStateChanged,
-  signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
   sendPasswordResetEmail,
-  signOut
+  signOut,
+  updateProfile as firebaseUpdateProfile,
+  onAuthStateChanged,
 } from "firebase/auth";
-import { doc, getDoc, getFirestore } from "firebase/firestore";
-import { initializeApp } from "firebase/app";
 
-// Config Firebase (asegúrate de usar tu bloque correcto aquí)
-const firebaseConfig = {
-  apiKey: "AIzaSyC7jYi0ST5rfYvfZcb8QgeMmvvVcrKDFiU",
-  authDomain: "mi-rutina-saludable.firebaseapp.com",
-  projectId: "mi-rutina-saludable",
-  storageBucket: "mi-rutina-saludable.firebasestorage.app",
-  messagingSenderId: "17810301001",
-  appId: "1:17810301001:web:a0d9b260b138c81980df98",
-  measurementId: "G-W2ZMDYK46E"
-};
+const auth = getAuth();
 
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
-
+// Creamos el contexto
 export const UserContext = createContext();
 
-export function UserProvider({ children }) {
+// Provider que envuelve la App
+export function UserContextProvider({ children }) {
   const [user, setUser] = useState(null);
   const [isAdmin, setIsAdmin] = useState(false);
-  const [loading, setLoading] = useState(true);
 
+  // Observamos el estado de autenticación
   useEffect(() => {
-    // Escucha cambios de auth
-    return onAuthStateChanged(auth, async (u) => {
-      setLoading(true);
-      setUser(u);
+    const unsubscribe = onAuthStateChanged(auth, async (u) => {
       if (u) {
-        // Comprueba si existe un doc en "admins" con uid = u.uid
-        const adminSnap = await getDoc(doc(db, "admins", u.uid));
-        setIsAdmin(adminSnap.exists());
+        setUser(u);
+        // Marcamos admin por correo (ajusta a tu lógica real)
+        setIsAdmin(u.email === "admin@tudominio.com");
       } else {
+        setUser(null);
         setIsAdmin(false);
       }
-      setLoading(false);
     });
+    return unsubscribe;
   }, []);
 
-  const logIn = (email, pass) => signInWithEmailAndPassword(auth, email, pass);
-  const signUp = (email, pass) => createUserWithEmailAndPassword(auth, email, pass);
-  const resetPass = (email) => sendPasswordResetEmail(auth, email);
+  // Funciones para registro, login, reset y logout
+  const register = (email, password) =>
+    createUserWithEmailAndPassword(auth, email, password);
+
+  const login = (email, password) =>
+    signInWithEmailAndPassword(auth, email, password);
+
+  const resetPassword = (email) => sendPasswordResetEmail(auth, email);
+
   const logOut = () => signOut(auth);
 
+  const updateProfile = (data) =>
+    firebaseUpdateProfile(auth.currentUser, data);
+
   return (
-    <UserContext.Provider value={{
-      user,
-      isAdmin,
-      loading,
-      logIn,
-      signUp,
-      resetPass,
-      logOut
-    }}>
+    <UserContext.Provider
+      value={{
+        user,
+        isAdmin,
+        register,
+        login,
+        resetPassword,
+        logOut,
+        updateProfile,
+      }}
+    >
       {children}
     </UserContext.Provider>
   );
