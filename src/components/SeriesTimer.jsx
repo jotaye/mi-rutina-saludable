@@ -1,161 +1,107 @@
 // src/components/SeriesTimer.jsx
-import React, { useState, useEffect, useRef, useContext } from "react";
-import { ProgressContext } from "../context/ProgressContext";
-import { PlayIcon, PauseIcon } from "@heroicons/react/24/outline";
+import React, { useState, useEffect, useContext, useRef } from "react";
+import { UserContext } from "../context/UserContext";
+import { db } from "../firebase";
+import { addDoc, collection, serverTimestamp } from "firebase/firestore";
 
 export default function SeriesTimer({
-  series = 1,
-  duracionSerie = 60,
-  descanso = 30,
-  nombreEjercicio = "Ejercicio genérico",
-  caloriasBase = 0,
-  diaClave = "",
-  nivel = "principiante",
-  onFinish = () => {},
+  series,
+  duracionSerie,   // en segundos
+  descanso,        // en segundos
+  nombreEjercicio,
+  caloriasBase,    // calorías aproximadas por minuto (MET ajustado)
+  diaClave,
+  nivel,
 }) {
-  const { registrarEjercicio } = useContext(ProgressContext);
+  const { user, profile } = useContext(UserContext);
+  const peso = profile?.peso || 70; // kg, fallback 70
+  const [serieActual, setSerieActual] = useState(1);
+  const [tiempo, setTiempo] = useState(duracionSerie);
+  const [enDescanso, setEnDescanso] = useState(false);
+  const timerRef = useRef(null);
+  const [registroHecho, setRegistroHecho] = useState(false);
 
-  const factorDuracion = {
-    principiante: 1.0,
-    intermedio: 1.5,
-    avanzado: 2.0,
-  }[nivel] || 1.0;
-
-  const factorCalorias = {
-    principiante: 1.0,
-    intermedio: 1.2,
-    avanzado: 1.5,
-  }[nivel] || 1.0;
-
-  const durSerieAjustada = Math.round(duracionSerie * factorDuracion);
-  const descansoAjustado = Math.round(descanso * factorDuracion);
-  const caloriasPorSerie = Math.round(caloriasBase * factorCalorias);
-
-  const tiempoTotalSegundos =
-    series * durSerieAjustada + (series - 1) * descansoAjustado;
-
-  const [actualSerie, setActualSerie] = useState(1);
-  const [esDescanso, setEsDescanso] = useState(false);
-  const [secondsLeft, setSecondsLeft] = useState(durSerieAjustada);
-  const [running, setRunning] = useState(false);
-  const intervalRef = useRef(null);
-  const audioRef = useRef(null);
-
+  // Iniciar o pausar el timer
   useEffect(() => {
-    audioRef.current = new Audio("/assets/alarm.mp3");
-  }, []);
-
-  useEffect(() => {
-    if (running && secondsLeft > 0) {
-      intervalRef.current = setInterval(() => {
-        setSecondsLeft((s) => s - 1);
-      }, 1000);
-    } else {
-      clearInterval(intervalRef.current);
+    if (serieActual > series) {
+      if (!registroHecho) registrarProgreso();
+      return;
     }
-    return () => clearInterval(intervalRef.current);
-  }, [running, secondsLeft]);
+    timerRef.current = setInterval(() => {
+      setTiempo((t) => t - 1);
+    }, 1000);
+    return () => clearInterval(timerRef.current);
+  }, [serieActual, enDescanso]);
 
+  // Avanzar de estado (serie/descanso)
   useEffect(() => {
-    if (running && secondsLeft === 0) {
-      audioRef.current.play();
-      setRunning(false);
-
-      if (!esDescanso) {
-        if (actualSerie < series) {
-          setEsDescanso(true);
-          setSecondsLeft(descansoAjustado);
-          setRunning(true);
+    if (tiempo < 0) {
+      clearInterval(timerRef.current);
+      if (!enDescanso) {
+        // terminó serie
+        if (serieActual < series) {
+          setEnDescanso(true);
+          setTiempo(descanso);
         } else {
-          const duracionTotalMin = Math.round(tiempoTotalSegundos / 60);
-          const caloriasTotales = caloriasPorSerie * series;
-          registrarEjercicio(diaClave, {
-            nombreEjercicio,
-            calorias: caloriasTotales,
-            duracionMin: duracionTotalMin,
-            seriesCompletas: series,
-          });
-          onFinish();
+          // terminó última serie
+          setSerieActual(series + 1);
         }
       } else {
-        setEsDescanso(false);
-        setActualSerie((p) => p + 1);
-        setSecondsLeft(durSerieAjustada);
-        setRunning(true);
+        // terminó descanso
+        setEnDescanso(false);
+        setSerieActual((s) => s + 1);
+        setTiempo(duracionSerie);
       }
     }
-  }, [
-    secondsLeft,
-    running,
-    esDescanso,
-    actualSerie,
-    series,
-    durSerieAjustada,
-    descansoAjustado,
-    caloriasPorSerie,
-    diaClave,
-    nombreEjercicio,
-    registrarEjercicio,
-    onFinish,
-    tiempoTotalSegundos,
-  ]);
+  }, [tiempo]);
 
-  const startRoutine = () => {
-    setActualSerie(1);
-    setEsDescanso(false);
-    setSecondsLeft(durSerieAjustada);
-    setRunning(true);
-  };
-  const stopRoutine = () => {
-    setRunning(false);
-    setActualSerie(1);
-    setEsDescanso(false);
-    setSecondsLeft(durSerieAjustada);
+  // Función para registrar en Firestore
+  const registrarProgreso = async () => {
+    try {
+      // duración total en segundos = (series * duracionSerie) + ((series - 1) * descanso)
+      const duracionTotal = series * duracionSerie + (series - 1) * descanso;
+      const horas = duracionTotal / 3600;
+      // calorías = MET * peso(kg) * horas
+      // asumimos caloriasBase = MET * 60 (cal/min), así que MET = caloriasBase / 60
+      const MET = caloriasBase / 60;
+      const caloriasEstimadas = Math.round(MET * peso * horas);
+
+      await addDoc(collection(db, "progreso"), {
+        uid: user.uid,
+        fecha: serverTimestamp(),
+        ejercicio: nombreEjercicio,
+        dia: diaClave,
+        nivel,
+        series,
+        duracionTotal,        // en segundos
+        caloriasEstimadas,    // integer
+      });
+      setRegistroHecho(true);
+      console.log("Progreso registrado:", nombreEjercicio, caloriasEstimadas);
+    } catch (err) {
+      console.error("Error registrando progreso:", err);
+    }
   };
 
-  const minutos = Math.floor(secondsLeft / 60);
-  const segundos = secondsLeft % 60;
+  // Mostrar “0:00” tras completar
+  if (serieActual > series) {
+    return (
+      <div className="text-center text-green-600 font-semibold">
+        ¡{nombreEjercicio} completado!
+      </div>
+    );
+  }
 
   return (
-    <div className="bg-gray-100 p-3 rounded-md inline-block text-center">
-      <div className="mb-2">
-        <span className="font-medium">
-          {esDescanso
-            ? "Descanso"
-            : `Serie ${actualSerie} de ${series}`}
-        </span>
+    <div className="text-center">
+      <p className="mb-1 font-medium">
+        Serie {serieActual} / {series}
+      </p>
+      <div className="text-4xl font-mono mb-2">
+        {String(Math.floor(tiempo / 60)).padStart(2, "0")}:
+        {String(tiempo % 60).padStart(2, "0")}
       </div>
-      <div className="text-2xl font-mono mb-2">
-        {String(minutos).padStart(2, "0")}:
-        {String(segundos).padStart(2, "0")}
-      </div>
-      <div className="flex justify-center space-x-2 mb-2">
-        {!running ? (
-          <button
-            onClick={startRoutine}
-            className="flex items-center bg-primary-500 hover:bg-primary-600 text-white px-3 py-1 rounded-md space-x-1 transition duration-200 ease-in-out"
-          >
-            <PlayIcon className="h-5 w-5" />
-            <span>Iniciar</span>
-          </button>
-        ) : (
-          <button
-            onClick={stopRoutine}
-            className="flex items-center bg-accent-500 hover:bg-accent-600 text-white px-3 py-1 rounded-md space-x-1 transition duration-200 ease-in-out"
-          >
-            <PauseIcon className="h-5 w-5" />
-            <span>Detener</span>
-          </button>
-        )}
-      </div>
-      <div className="text-sm text-gray-500">
-        <p>{`Objetivo: ${series}×${Math.round(
-          durSerieAjustada / 60
-        )} min, descanso ${descansoAjustado}s`}</p>
-        <p>{`Cal. totales (est.): ${
-          caloriasPorSerie * series
-        } kcal`}</p>
-      </div>
+      {enDescanso && <p className="text-sm text-gray-500">Descanso</p>}
     </div>
   );
 }
